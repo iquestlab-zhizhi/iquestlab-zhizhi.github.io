@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>植物大战僵尸 - 阳光版</title>
+    <style>
+        body {
+            background-color: #2c3e50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { margin-bottom: 10px; }
+        #game-container {
+            display: flex;
+            gap: 20px;
+        }
+        canvas {
+            background-color: #87CEEB; /* 天空蓝背景 */
+            border: 4px solid #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        #ui-panel {
+            width: 200px;
+            background: #34495e;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .btn {
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-sunflower { background-color: #f1c40f; color: #333; }
+        .btn-peashooter { background-color: #2ecc71; color: #fff; }
+        .btn-wallnut { background-color: #e67e22; color: #fff; }
+        .btn-restart { background-color: #e74c3c; color: #fff; margin-top: 10px;}
+        
+        .stats { font-size: 1.2em; margin-top: 10px; border-top: 1px solid #7f8c8d; padding-top: 10px; }
+        .stat-item { display: flex; justify-content: space-between; margin: 5px 0; }
+        .selected { border: 3px solid white; }
+        
+        .info-text { font-size: 0.9em; color: #bdc3c7; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <h1>🌻 植物大战僵尸 (阳光版) 🧟</h1>
+    <p class="info-text">注意：植物需要阳光才能生长！番茄可以产生阳光。</p>
+    
+    <div id="game-container">
+        <!-- 游戏画布 -->
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+        <!-- 侧边栏：商店和信息 -->
+        <div id="ui-panel">
+            <h3>植物卡片</h3>
+            <p><small>植物需要阳光才能生长。种下后需要等待阳光成熟。</small></p>
+            <button class="btn btn-sunflower" onclick="selectPlant('sunflower')">🌻 番茄 (250金币 + 50阳光)</button>
+            <button class="btn btn-peashooter" onclick="selectPlant('peashooter')">🌿豌豆射手 (100金币 + 20阳光)</button>
+            <button class="btn btn-wallnut" onclick="selectPlant('wallnut')">🌰坚果墙 (50金币 + 100阳光)</button>
+            
+            <div class="stats">
+                <div class="stat-item">🪙 金币: <span id="score">500</span></div>
+                <div class="stat-item">☀️ 阳光: <span id="sun">100</span></div>
+                <div class="stat-item">🧟 zombieCount: <span id="zombieCount">0</span></div>
+            </div>
+            <button class="btn btn-restart" onclick="resetGame()">🔄 重置游戏</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const sunEl = document.getElementById('sun');
+        const zombieCountEl = document.getElementById('zombieCount');
+
+        // 游戏配置
+        const GRID_SIZE = 50; // 每个格子的大小
+        const ROWS = 8;
+        const COLS = 12;
+        
+        // 游戏状态
+        let score = 500; // 初始金币
+        let sun = 100;    // 阳光数量
+        let sunRate = 0; // 阳光产生速度
+        let selectedPlantType = null;
+        let gameLoopId;
+        let lastTime = 0;
+        let dropZombieTimer = 0;
+        let sunProductionTimer = 0;
+
+        // 植物和僵尸数组
+        let plants = [];
+        let zombies = [];
+        let bullets = []; // 包括子弹和豌豆投手扔出的豌豆
+
+        // 植物定义
+        const PLANTS_DB = {
+            sunflower: { 
+                cost: 250, 
+                sunCost: 50,
+                color: '#e67e22', 
+                height: 40, 
+                shootCooldown: 0,
+                growthTime: 6000, // 生长需要6秒
+                isProducing: true // 成熟后是否持续产生阳光
+            },
+            peashooter: { 
+                cost: 100, 
+                sunCost: 20,
+                color: '#2ecc71', 
+                height: 40, 
+                shootCooldown: 2000,
+                growthTime: 3000,  // 生长需要3秒
+                isProducing: false
+            },
+            wallnut: { 
+                cost: 50, 
+                sunCost: 100,
+                color: '#e67e22',
+                height: 60,
+                shootCooldown: 0,
+                growthTime: 0,   // 坚果不需要生长时间
+                isProducing: false
+            }
+        };
+
+        class Plant {
+            constructor(col, row, type) {
+                this.type = type;
+                this.col = col;
+                this.row = row;
+                this.x = col * GRID_SIZE + 10;
+                this.y = row * GRID_SIZE + 50;
+                this.width = GRID_SIZE - 20;
+                this.height = PLANTS_DB[type].height;
+                this.color = PLANTS_DB[type].color;
+                
+                // 生长相关
+                this.growthTime = PLANTS_DB[type].growthTime;
+                this.elapsedTime = 0;
+                this.isGrown = false;
+                this.canShoot = false;
+                this.lastShot = 0;
+                this.isProducing = PLANTS_DB[type].isProducing; // 是否产生阳光
+            }
+
+            draw() {
+                // 绘制生长进度
+                if (this.growthTime > 0 && !this.isGrown) {
+                    const progress = Math.min(this.elapsedTime / this.growthTime, 1);
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(this.x, this.y - 10, this.width, 10);
+                    ctx.fillStyle = '#f39c12';
+                    ctx.fillRect(this.x, this.y - 10, this.width * progress, 10);
+                    
+                    ctx.fillStyle = '#000';
+                    ctx.textAlign = 'center';
+                    ctx.font = '10px Arial';
+                    ctx.fillText(`${Math.floor(progress * 100)}%`, this.x + this.width/2, this.y);
+                    return;
+                }
+
+                // 成熟植物
+                if (this.type === 'sunflower') {
+                    // 画一个简单的番茄
+                    ctx.fillStyle = '#e67e22';
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width/2, this.y + this.height - 10, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                    // 画茎
+                    ctx.strokeStyle = '#27ae60';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + this.width/2, this.y + this.height);
+                    ctx.lineTo(this.x + this.width/2, this.y + 40);
+                    ctx.stroke();
+                    
+                    // 产生阳光效果
+                    if (this.isProducing && this.canShoot && Math.random() < 0.05) {
+                        sun++;
+                        drawSunEffect(this.x + this.width/2, this.y);
+                    }
+                } else if (this.type === 'peashooter') {
+                    // 画豌豆射手
+                    ctx.fillStyle = '#2ecc71';
+                    ctx.fillRect(this.x + 5, this.y + 5, this.width - 10, this.height - 10);
+                    // 眼睛
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(this.x + 10, this.y + 20, 15, 10);
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(this.x + 15, this.y + 25, 5, 5);
+                } else if (this.type === 'wallnut') {
+                    // 画坚果墙
+                    ctx.fillStyle = '#f1c40f';
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width/2, this.y + this.height/2, 30, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#d35400';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    // 裂纹
+                    ctx.fillStyle = '#e67e22';
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + 15, this.y + 50);
+                    ctx.lineTo(this.x + 35, this.y + 55);
+                    ctx.lineTo(this.x + 15, this.y + 60);
+                    ctx.fill();
+                }
+            }
+
+            update(currentTime) {
+                // 处理生长
+                if (!this.isGrown && this.growthTime > 0) {
+                    this.elapsedTime += currentTime - (this.lastUpdateTime || currentTime);
+                    if (this.elapsedTime >= this.growthTime) {
+                        this.isGrown = true;
+                        this.canShoot = true;
+                    }
+                }
+                
+                this.lastUpdateTime = currentTime;
+                
+                // 成熟后才能攻击
+                if (!this.isGrown || !this.canShoot) return;
+
+                if (this.type === 'peashooter') {
+                    // 检查是否有僵尸在范围内
+                    const zombieInRange = zombies.find(z => z.x < this.x + this.width && z.x + 40 > this.x);
+                    
+                    if (zombieInRange && currentTime - this.lastShot > PLANTS_DB.peashooter.shootCooldown) {
+                        this.shoot();
+                        this.lastShot = currentTime;
+                    }
+                }
+            }
+
+            shoot() {
+                bullets.push(new Bullet(this.x + this.width/2, this.y, -1)); // -1 是向左射击
+            }
+            
+            takeDamage() {
+                // 坚果墙有血量
+                if (this.type === 'wallnut' && this.health > 1) {
+                    this.health--;
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        class Zombie {
+            constructor() {
+                this.x = canvas.width; // 从右侧出现
+                this.width = 40;
+                this.height = 60;
+                this.speed = 0.5;
+                this.color = '#e74c3c';
+                this.health = 3;
+                this.isDead = false;
+                
+                // 随机分配一行
+                const randomRow = Math.floor(Math.random() * ROWS);
+                this.y = randomRow * GRID_SIZE + 50;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // 简单的眼睛
+                ctx.fillStyle = 'white';
+                ctx.fillRect(this.x + 5, this.y + 10, 10, 10);
+                ctx.fillRect(this.x + 25, this.y + 10, 10, 10);
+                ctx.fillStyle = 'black';
+                ctx.fillRect(this.x + 8, this.y + 14, 4, 4);
+                ctx.fillRect(this.x + 30, this.y + 14, 4, 4);
+                
+                // 受伤效果
+                if (this.health < 3) {
+                    ctx.fillStyle = 'yellow';
+                    ctx.fillText('!', this.x + 10, this.y + 35);
+                }
+            }
+
+            update() {
+                this.x -= this.speed;
+                
+                // 检查是否到达左边
+                if (this.x < 0) {
+                    this.isDead = true;
+                    return false; // 失败
+                }
+                return true;
+            }
+        }
+
+        class Bullet {
+            constructor(x, y, dir) {
+                this.x = x;
+                this.y = y;
+                this.vx = 5 * dir; // 速度
+                this.radius = 5;
+                this.isDead = false;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+            }
+
+            update() {
+                this.x += this.vx;
+
+                // 边界检查
+                if (this.x < 0 || this.x > canvas.width) {
+                    this.isDead = true;
+                }
+
+                // 碰撞检测 (子弹 vs 僵尸)
+                for (let z of zombies) {
+                    if (!z.isDead && 
+                        this.x > z.x && this.x < z.x + z.width &&
+                        this.y > z.y && this.y < z.y + z.height) {
+                        
+                        z.health--;
+                        this.isDead = true; // 子弹消失
+                        
+                        if (z.health <= 0) {
+                            z.isDead = true;
+                            // 杀死僵尸奖励阳光
+                            sun += 25;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        // --- 游戏控制函数 ---
+
+        function selectPlant(type) {
+            selectedPlantType = type;
+            
+            // 更新UI按钮样式
+            document.querySelectorAll('.btn-sunflower, .btn-peashooter, .btn-wallnut').forEach(b => b.classList.remove('selected'));
+            document.querySelector(`.btn-${type}`).classList.add('selected');
+        }
+
+        function resetGame() {
+            score = 50;
+            sun = 0;
+            plants = [];
+            zombies = [];
+            bullets = [];
+            lastTime = 0;
+            updateUI();
+        }
+
+        function updateUI() {
+            scoreEl.innerText = score;
+            sunEl.innerText = sun;
+            zombieCountEl.innerText = zombies.length;
+        }
+
+        function drawBackground() {
+            // 绘制网格
+            ctx.strokeStyle = '#5d6d7e';
+            ctx.lineWidth = 1;
+            
+            // 地面线条
+            for (let i = 0; i <= ROWS; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, i * GRID_SIZE + 50);
+                ctx.lineTo(canvas.width, i * GRID_SIZE + 50);
+                ctx.stroke();
+            }
+            for (let i = 0; i <= COLS; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * GRID_SIZE, 0); // 背景可以画满高度
+                ctx.lineTo(i * GRID_SIZE, canvas.height);
+                ctx.stroke();
+            }
+
+            // 绘制地面草地
+            ctx.fillStyle = '#76d36e';
+            ctx.fillRect(0, (ROWS) * GRID_SIZE + 50, canvas.width, canvas.height - ((ROWS) * GRID_SIZE + 50));
+        }
+        
+        function drawSunEffect(x, y) {
+            ctx.beginPath();
+            ctx.fillStyle = `rgba(241, 196, 15, ${Math.random()})`;
+            ctx.arc(x, y, 20, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = 'orange';
+            ctx.stroke();
+        }
+
+        // --- 核心循环 ---
+
+        function loop(timestamp) {
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+
+            // 1. 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 2. 绘制背景
+            drawBackground();
+
+            // 3. 阳光自动恢复 (没有阳光机制，只是基础玩法)
+            sunProductionTimer += deltaTime;
+            if (sunProductionTimer > 2000 && sun < 500) {
+                sun++;
+                sunProductionTimer = 0;
+            }
+
+            // 4. 生成僵尸逻辑 - 只有当有阳光时才会生成僵尸，并且生成频率加速
+            dropZombieTimer += deltaTime;
+            let dropRate = Math.max(1000, 5000 - sun * 50); // 阳光越多，僵尸越多
+            if (dropZombieTimer > dropRate && sun > 0) {
+                zombies.push(new Zombie());
+                dropZombieTimer = 0;
+            }
+
+            // 5. 更新和绘制所有实体
+            
+            // 植物
+            plants.forEach(p => {
+                p.draw();
+                p.update(timestamp);
+            });
+
+            // 僵尸
+            let gameOver = false;
+            zombies = zombies.filter(z => !z.isDead);
+            for (let z of zombies) {
+                z.draw();
+                if (!z.update()) {
+                    gameOver = true;
+                }
+            }
+            
+            if (gameOver) {
+                alert("游戏失败！僵尸入侵了你的脑子！");
+                resetGame();
+                return;
+            }
+
+            // 子弹
+            bullets = bullets.filter(b => !b.isDead);
+            bullets.forEach(b => {
+                b.draw();
+                b.update();
+            });
+
+            updateUI();
+            if (gameOver) return;
+            gameLoopId = requestAnimationFrame(loop);
+        }
+
+        // --- 鼠标点击事件 ---
+
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // 计算点击了哪个格子
+            const col = Math.floor(x / GRID_SIZE);
+            const row = Math.floor((y - 50) / GRID_SIZE); // 减去顶部偏移
+
+            // 验证点击位置是否在游戏区域
+            if (col >= 0 && col < COLS && row >= 0 && row < ROWS) {
+                
+                // 检查该格子是否已有植物
+                const existingPlant = plants.find(p => p.col === col && p.row === row);
+                
+                if (existingPlant) {
+                    // 如果植物正在生长中，可以取消
+                    if (!existingPlant.isGrown) {
+                        plants = plants.filter(p => p !== existingPlant);
+                        score += Math.floor(PLANTS_DB[existingPlant.type].cost * 0.5); // 退回50%金币
+                        sun += Math.floor(PLANTS_DB[existingPlant.type].sunCost * 0.3); // 退回30%阳光
+                        updateUI();
+                        return;
+                    }
+                    return; // 已经有了成熟的植物
+                }
+                
+                // 1. 如果有选中植物，尝试种植
+                if (selectedPlantType) {
+                    const cost = PLANTS_DB[selectedPlantType].cost;
+                    const sunCost = PLANTS_DB[selectedPlantType].sunCost;
+                    
+                    // 检查资源是否足够
+                    if (score >= cost && sun >= sunCost) {
+                        score -= cost;
+                        sun -= sunCost;
+                        plants.push(new Plant(col, row, selectedPlantType));
+                        updateUI();
+                        
+                        // 取消选择
+                        selectedPlantType = null;
+                        document.querySelectorAll('.btn-sunflower, .btn-peashooter, .btn-wallnut').forEach(b => b.classList.remove('selected'));
+                    } else {
+                        // 资源不足提示
+                        const msg = [];
+                        if (score < cost) msg.push(`金币不足 (+${cost})`);
+                        if (sun < sunCost) msg.push(`阳光不足 (+${sunCost})`);
+                        alert('资源不足:\n' + msg.join('\n'));
+                    }
+                }
+            }
+        });
+
+        // --- 启动游戏 ---
+        gameLoopId = requestAnimationFrame(loop);
+
+    </script>
+</body>
+</html>
