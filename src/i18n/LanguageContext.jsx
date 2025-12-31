@@ -149,7 +149,8 @@ const DICT = {
     demo6_item5: "辅助功能：内置 FPS 计数器；按 Space 暂停/继续。",
     demo6_iframe_title: "Boids Algorithm - Flocking Simulation",
 
-    showcase_new_title: "ICPC周赛",
+    showcase_new_title:
+      "2025-2026 ICPC, NERC, Northern Eurasia Finals Online Mirror",
     showcase_new_desc: "描述待定。",
     showcase_new_image_alt: "使用示例图片（待定）",
   },
@@ -304,7 +305,8 @@ const DICT = {
     demo6_item5: "Utilities: FPS counter and pause/resume (Space).",
     demo6_iframe_title: "Boids flocking simulation",
 
-    showcase_new_title: "ICPC Weekly Contest",
+    showcase_new_title:
+      "2025-2026 ICPC, NERC, Northern Eurasia Finals Online Mirror",
     showcase_new_desc: "Description TBD.",
     showcase_new_image_alt: "Showcase image (TBD)",
   },
