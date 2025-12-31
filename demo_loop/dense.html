@@ -97,6 +97,29 @@
         scrollVelocity += delta;
       }
 
+      // 触摸支持：用“手指滑动”模拟滚轮（手机端 iframe 里没有 wheel）
+      let touchStartY = 0;
+      window.addEventListener(
+        "touchstart",
+        (e) => {
+          if (!e.touches || !e.touches.length) return;
+          touchStartY = e.touches[0].clientY;
+        },
+        { passive: true }
+      );
+      window.addEventListener(
+        "touchmove",
+        (e) => {
+          if (!e.touches || !e.touches.length) return;
+          const touchY = e.touches[0].clientY;
+          const deltaY = touchStartY - touchY; // 上滑为正（更像滚轮向下）
+          scrollVelocity += deltaY * CONFIG.accelFactor;
+          touchStartY = touchY;
+          e.preventDefault();
+        },
+        { passive: false }
+      );
+
       // --- 核心渲染循环 ---
       function loop() {
         requestAnimationFrame(loop);

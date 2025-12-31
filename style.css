@@ -666,6 +666,18 @@ html[lang="en"] .hero .subtitle {
   }
 }
 
+/* 手机端：给虫洞 demo 多一点可视高度，避免 UI 被挤压 */
+@media (max-width: 520px) {
+  .comparison-item {
+    padding: 12px;
+  }
+
+  .comparison-iframe {
+    height: 420px;
+    max-height: 78vh;
+  }
+}
+
 .content-section .list {
   list-style: none;
   padding: 0;
