@@ -54,12 +54,13 @@ const DICT = {
       "两条后训练路径：Thinking（强化推理）与 Instruct（通用协助）",
     home_feature_loop_title: "Loop 架构",
     home_feature_loop_desc:
-      "Loop 结构用以降低显存和 KV Cache 占用，同性能下提升模型吞吐",
+      "引入Loop结构，相比同算力开销模型，显著降低显存和KV Cache占用，大幅提升模型吞吐",
     home_feature_deploy_title: "高效部署",
     home_feature_deploy_desc:
-      "单卡 3090/4090 即可部署（int4）；非量化版单卡 H20 全部可部署",
+      "Base/Loop版支持单卡H20推理，Int4版单卡3090/4090消费级显卡即可部署",
     home_feature_cost_title: "成本优化",
-    home_feature_cost_desc: "训练成本 1.05× 或 1.1×，达到帕累托前沿",
+    home_feature_cost_desc:
+      "仅引入5%额外训练成本，借由Loop架构大幅释放模型性能，达到数百B MoE大模型性能，重塑帕累托边界",
 
     home_pipeline_aria: "训练流程",
     home_pipeline_desc:
@@ -201,13 +202,13 @@ const DICT = {
       "Two post-training tracks: Thinking (reasoning-focused) and Instruct (general assistance).",
     home_feature_loop_title: "Loop Architecture",
     home_feature_loop_desc:
-      "Reduces VRAM and KV cache usage while improving throughput at the same quality.",
+      "With the Loop architecture, compared to models with similar compute cost, VRAM and KV cache usage are significantly reduced while throughput is greatly improved.",
     home_feature_deploy_title: "Efficient Deployment",
     home_feature_deploy_desc:
-      "Deploy on a single 3090/4090 (int4); full-precision can run on a single H20.",
+      "Base/Loop versions run on a single H20; the int4 version can be deployed on a single consumer GPU such as 3090/4090.",
     home_feature_cost_title: "Cost Optimization",
     home_feature_cost_desc:
-      "Training cost at 1.05× or 1.1×, reaching the Pareto frontier.",
+      "With only ~5% additional training cost, the Loop architecture unlocks much higher performance—reaching the level of hundreds-of-billions-parameter MoE models and reshaping the Pareto frontier.",
 
     home_pipeline_aria: "Training Pipeline",
     home_pipeline_desc:
