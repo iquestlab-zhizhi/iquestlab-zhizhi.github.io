@@ -570,6 +570,40 @@ html[lang="en"] .hero .subtitle {
   border: 1px solid var(--border);
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
   display: block;
+  background: #fff;
+}
+
+/* Showcases：移动端 iframe 不要固定 540px（会显得“又长又挤”） */
+@media (max-width: 768px) {
+  .showcase-iframe {
+    height: 420px;
+  }
+}
+
+@media (max-width: 520px) {
+  .showcase-card {
+    padding: 12px;
+  }
+
+  .prompt-list {
+    padding-left: 16px;
+  }
+
+  .showcase-card .showcase-demo {
+    margin-top: 12px;
+  }
+
+  .showcase-iframe {
+    height: 360px;
+    max-height: 70vh;
+    border-radius: 14px;
+  }
+
+  /* demo3 这种“全屏 WebGL + 多个 fixed 控件”的 demo，需要更高的可视区域 */
+  .showcase-iframe.showcase-iframe--tall {
+    height: 560px;
+    max-height: 82vh;
+  }
 }
 
 /* LoopCoder 性能对比 */

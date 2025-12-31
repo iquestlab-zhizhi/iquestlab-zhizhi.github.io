@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Neon Space Shooter</title>
     <style>
         body {
@@ -14,6 +15,7 @@
         }
         canvas {
             display: block;
+            touch-action: none; /* 移动端：画布交互优先，避免浏览器手势/滚动 */
         }
         #ui {
             position: absolute;
@@ -24,12 +26,13 @@
         }
         .controls-hint {
             position: absolute;
-            bottom: 20px;
+            bottom: calc(20px + env(safe-area-inset-bottom));
             width: 100%;
             text-align: center;
             color: #888;
             font-size: 14px;
             pointer-events: none;
+            padding: 0 14px;
         }
         #game-over {
             position: absolute;
@@ -77,6 +80,42 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
         }
+
+        /* 小屏/矮屏：避免文字/弹窗过大遮挡游戏画面 */
+        @media (max-width: 520px) {
+            #ui {
+                top: 12px;
+                left: 12px;
+                font-size: 12px;
+            }
+
+            .controls-hint {
+                font-size: 12px;
+                bottom: calc(12px + env(safe-area-inset-bottom));
+            }
+
+            #message {
+                font-size: 28px;
+            }
+
+            #game-over {
+                width: min(86vw, 360px);
+                padding: 22px 18px;
+            }
+
+            button {
+                font-size: 16px;
+                padding: 10px 22px;
+            }
+        }
+
+        @media (max-height: 420px) {
+            .controls-hint {
+                font-size: 11px;
+                bottom: calc(10px + env(safe-area-inset-bottom));
+            }
+            #message { font-size: 24px; }
+        }
     </style>
 </head>
 <body>
@@ -120,6 +159,8 @@ let gameState = {
 // 输入状态
 const keys = { w: false, a: false, s: false, d: false, r: false, space: false };
 const mouse = { x: 0, y: 0, down: false };
+// 触摸输入（移动端）：手指拖动=移动 + 瞄准
+const touch = { active: false, x: 0, y: 0 };
 
 // 实体容器
 let player;
@@ -161,10 +202,20 @@ class Player {
 
     update() {
         // 移动
-        if (keys.w && this.y > this.r) this.y -= this.speed;
-        if (keys.s && this.y < canvas.height - this.r) this.y += this.speed;
-        if (keys.a && this.x > this.r) this.x -= this.speed;
-        if (keys.d && this.x < canvas.width - this.r) this.x += this.speed;
+        // - 桌面端：WASD
+        // - 移动端：手指拖动，飞船跟随手指（更适合 iframe 内小屏体验）
+        if (touch.active) {
+            const targetX = Math.max(this.r, Math.min(canvas.width - this.r, touch.x));
+            const targetY = Math.max(this.r, Math.min(canvas.height - this.r, touch.y));
+            // 平滑跟随：避免抖动，同时保持可控
+            this.x += (targetX - this.x) * 0.35;
+            this.y += (targetY - this.y) * 0.35;
+        } else {
+            if (keys.w && this.y > this.r) this.y -= this.speed;
+            if (keys.s && this.y < canvas.height - this.r) this.y += this.speed;
+            if (keys.a && this.x > this.r) this.x -= this.speed;
+            if (keys.d && this.x < canvas.width - this.r) this.x += this.speed;
+        }
 
         // 旋转逻辑
         if (keys.r) {
@@ -736,6 +787,40 @@ window.addEventListener('mousemove', e => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
 });
+
+// 移动端触摸：在画布内拖动控制（移动+瞄准）
+const setTouch = (clientX, clientY) => {
+    touch.x = clientX;
+    touch.y = clientY;
+    mouse.x = clientX;
+    mouse.y = clientY;
+};
+
+canvas.addEventListener('touchstart', (e) => {
+    if (!e.touches || !e.touches.length) return;
+    touch.active = true;
+    setTouch(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: true });
+
+canvas.addEventListener('touchmove', (e) => {
+    if (!e.touches || !e.touches.length) return;
+    e.preventDefault();
+    touch.active = true;
+    setTouch(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: false });
+
+canvas.addEventListener('touchend', () => {
+    touch.active = false;
+}, { passive: true });
+
+// 移动端文案提示替换（不影响桌面端）
+try {
+    const mq = window.matchMedia && window.matchMedia('(max-width: 520px)');
+    if (mq && mq.matches) {
+        const hint = document.querySelector('.controls-hint');
+        if (hint) hint.textContent = '手指拖动：移动+瞄准 | 空格：暂停 | P：升级(200分)';
+    }
+} catch (e) {}
 
 // 启动游戏
 init();
