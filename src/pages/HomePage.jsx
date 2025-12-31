@@ -397,7 +397,7 @@ export default function HomePage() {
                   <tr>
                     <td>IQuest-Coder-7B</td>
                     <td>7B</td>
-                    <td>32K</td>
+                    <td>128K</td>
                     <td>
                       <div
                         className="path-flow"
@@ -422,7 +422,7 @@ export default function HomePage() {
                   <tr>
                     <td>IQuest-Coder-14B</td>
                     <td>14B</td>
-                    <td>32K</td>
+                    <td>128K</td>
                     <td>
                       <div
                         className="path-flow"
@@ -677,10 +677,9 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="showcase-card">
+          {/* <div className="showcase-card">
             <blockquote className="showcase-quote">
               <h3>{t("demo4_title")}</h3>
-              {/* <p>描述待定。</p> */}
             </blockquote>
             <div className="showcase-demo" data-reveal>
               <iframe
@@ -691,7 +690,7 @@ export default function HomePage() {
                 className="showcase-iframe"
               />
             </div>
-          </div>
+          </div> */}
 
           <div className="showcase-card">
             <blockquote className="showcase-quote">
