@@ -309,7 +309,7 @@ const DICT = {
 };
 
 const LanguageContext = createContext({
-  lang: "zh",
+  lang: "en",
   setLang: () => {},
   toggleLang: () => {},
   t: (key) => key,
@@ -317,9 +317,10 @@ const LanguageContext = createContext({
 
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState(() => {
-    if (typeof window === "undefined") return "zh";
+    // 默认展示英文；若用户曾手动切换，则优先使用本地存储中的选择
+    if (typeof window === "undefined") return "en";
     const saved = window.localStorage.getItem(STORAGE_KEY);
-    return saved === "en" || saved === "zh" ? saved : "zh";
+    return saved === "en" || saved === "zh" ? saved : "en";
   });
 
   useEffect(() => {
