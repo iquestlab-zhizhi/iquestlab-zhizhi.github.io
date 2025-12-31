@@ -238,7 +238,7 @@ export default function HomePage() {
             </a>
             <a
               className="btn btn-secondary"
-              href={assetUrl("report/IQuest_Coder_Technical_Report.pdf")}
+              href="https://github.com/IQuestLab/IQuest-Coder-V1/blob/main/papers/IQuest_Coder_Technical_Report.pdf"
               target="_blank"
               rel="noopener noreferrer"
             >
