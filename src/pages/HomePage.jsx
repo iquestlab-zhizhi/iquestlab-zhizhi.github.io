@@ -373,7 +373,7 @@ export default function HomePage() {
           <p>{t("home_benchmark_desc")}</p>
           <div className="media-wrap" data-reveal>
             <img
-              src={assetUrl("images/benchmark.jpg")}
+              src={assetUrl("images/benchmark.png")}
               alt={t("home_benchmark_image_alt")}
             />
           </div>
