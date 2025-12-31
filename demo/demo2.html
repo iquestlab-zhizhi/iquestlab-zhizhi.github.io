@@ -257,10 +257,17 @@
                                 grid[target2] = 2;
                                 grid[idx] = 0;
                             } else {
-                                // 如果斜角也不行，尝试水平流动
+                                // 如果斜角也不行，尝试水平流动（增加速度：优先检查水平方向）
+                                // 增加水平流动概率：即使斜角被堵，也优先尝试水平扩散
                                 const sideIdx = (dir === -1) ? leftIdx : rightIdx;
+                                const otherSideIdx = (dir === -1) ? rightIdx : leftIdx;
+                                
+                                // 优先尝试随机方向，如果不行再试另一侧
                                 if (sideIdx !== -1 && grid[sideIdx] === 0) {
                                     grid[sideIdx] = 2;
+                                    grid[idx] = 0;
+                                } else if (otherSideIdx !== -1 && grid[otherSideIdx] === 0) {
+                                    grid[otherSideIdx] = 2;
                                     grid[idx] = 0;
                                 }
                             }
@@ -272,11 +279,12 @@
                 else if (type === 4) {
                     // 酸液基本运动同水，但会腐蚀接触到的非酸、非空物体
                     
-                    // 腐蚀检测函数
+                    // 腐蚀检测函数（不腐蚀水和酸液本身）
                     const checkCorrosion = (targetIdx) => {
                         if (targetIdx !== -1) {
                             const targetType = grid[targetIdx];
-                            if (targetType !== 0 && targetType !== 4) {
+                            // 不腐蚀空、酸液和水（水不能被腐蚀）
+                            if (targetType !== 0 && targetType !== 4 && targetType !== 2) {
                                 // 只要有概率的腐蚀，避免瞬间消失
                                 grid[targetIdx] = 0; // 溶解目标
                                 grid[idx] = 0;       // 酸液本身也消耗掉
@@ -292,17 +300,45 @@
                     if (checkCorrosion(leftIdx)) continue;
                     if (checkCorrosion(rightIdx)) continue;
 
-                    // 如果没有发生反应，按水和的方式流动（质量比水轻或粘稠度，这里简单按液体处理）
+                    // 如果没有发生反应，按密度大于水的液体处理（会沉到水下面）
                     if (belowIdx !== -1 && grid[belowIdx] === 0) {
+                        // 下方为空，下落
                         grid[belowIdx] = 4; grid[idx] = 0;
+                    } else if (belowIdx !== -1 && grid[belowIdx] === 2) {
+                        // 下方是水，沉下去（交换位置，因为密度大于水）
+                        grid[belowIdx] = 4;
+                        grid[idx] = 2;
                     } else {
-                        // 液体横向流逻辑
+                        // 尝试向左下或右下
                         const dir = Math.random() < 0.5 ? -1 : 1;
-                        let moved = false;
-                        if ((dir === -1 && leftIdx !== -1 && grid[leftIdx] === 0) ||
-                            (dir === 1 && rightIdx !== -1 && grid[rightIdx] === 0)) {
-                            const side = (dir === -1) ? leftIdx : rightIdx;
-                            grid[side] = 4; grid[idx] = 0;
+                        const target1 = (dir === -1) ? belowLeftIdx : belowRightIdx;
+                        const target2 = (dir === -1) ? belowRightIdx : belowLeftIdx;
+                        
+                        // 先试一侧
+                        if (target1 !== -1 && grid[target1] === 0) {
+                            grid[target1] = 4; grid[idx] = 0;
+                        } else if (target1 !== -1 && grid[target1] === 2) {
+                            // 斜下方是水，沉下去
+                            grid[target1] = 4; grid[idx] = 2;
+                        } else {
+                            // 试另一侧
+                            if (target2 !== -1 && grid[target2] === 0) {
+                                grid[target2] = 4; grid[idx] = 0;
+                            } else if (target2 !== -1 && grid[target2] === 2) {
+                                // 斜下方是水，沉下去
+                                grid[target2] = 4; grid[idx] = 2;
+                            } else {
+                                // 如果斜角也不行，尝试水平流动（增加速度：检查多个方向）
+                                const side = (dir === -1) ? leftIdx : rightIdx;
+                                const otherSide = (dir === -1) ? rightIdx : leftIdx;
+                                
+                                // 优先尝试随机方向，如果不行再试另一侧
+                                if (side !== -1 && grid[side] === 0) {
+                                    grid[side] = 4; grid[idx] = 0;
+                                } else if (otherSide !== -1 && grid[otherSide] === 0) {
+                                    grid[otherSide] = 4; grid[idx] = 0;
+                                }
+                            }
                         }
                     }
                 }

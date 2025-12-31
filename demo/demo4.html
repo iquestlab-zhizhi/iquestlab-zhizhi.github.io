@@ -1,538 +1,670 @@
+      
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>植物大战僵尸 - 阳光版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复古黄金矿工 (Retro Gold Miner)</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+
+        :root {
+            --c-cyan: #00FFFF;
+            --c-pink: #FF00FF;
+            --c-yellow: #FFFF00;
+            --c-black: #080808;
+            --c-bg-dark: #220022;
+        }
+
         body {
-            background-color: #2c3e50;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: white;
             margin: 0;
-            padding: 20px;
-        }
-        h1 { margin-bottom: 10px; }
-        #game-container {
+            overflow: hidden;
+            background-color: var(--c-black);
+            font-family: 'Bangers', 'Arial Black', sans-serif;
             display: flex;
-            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
+
+        #gameContainer {
+            position: relative;
+            box-shadow: 15px 15px 0px var(--c-cyan);
+            border: 5px solid var(--c-black);
+        }
+
         canvas {
-            background-color: #87CEEB; /* 天空蓝背景 */
-            border: 4px solid #fff;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background: conic-gradient(var(--c-bg-dark) 90deg, transparent 90deg);
+            background-size: 50px 50px;
+            /* 创建半色调网点背景效果 */
+            background-image:
+                radial-gradient(var(--c-pink) 20%, transparent 20%),
+                radial-gradient(var(--c-cyan) 20%, transparent 20%);
+            background-color: var(--c-bg-dark);
+            background-position: 0 0, 10px 10px;
+            background-size: 20px 20px;
+            display: block;
+            cursor: crosshair;
         }
-        #ui-panel {
-            width: 200px;
-            background: #34495e;
-            padding: 20px;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+
+        /* 通用UI风格 */
+        .ui-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-2deg);
+            background-color: var(--c-yellow);
+            border: 8px solid var(--c-black);
+            padding: 30px;
+            text-align: center;
+            box-shadow: 10px 10px 0 var(--c-pink);
+            display: none; /* 默认隐藏 */
         }
-        .btn {
-            padding: 10px;
-            border: none;
-            cursor: pointer;
+
+        .ui-panel h1 {
+            font-size: 4rem;
+            color: var(--c-pink);
+            text-shadow: 4px 4px var(--c-black);
+            margin: 0 0 20px 0;
+            -webkit-text-stroke: 2px var(--c-black);
+        }
+
+        .ui-panel p {
+            font-size: 1.8rem;
             font-weight: bold;
-            border-radius: 5px;
+            color: var(--c-black);
+            margin: 10px 0;
+        }
+
+        button {
+            font-family: 'Bangers', sans-serif;
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: var(--c-cyan);
+            border: 4px solid var(--c-black);
+            box-shadow: 5px 5px 0 var(--c-black);
+            cursor: pointer;
             transition: transform 0.1s;
         }
-        .btn:active { transform: scale(0.95); }
-        .btn-sunflower { background-color: #f1c40f; color: #333; }
-        .btn-peashooter { background-color: #2ecc71; color: #fff; }
-        .btn-wallnut { background-color: #e67e22; color: #fff; }
-        .btn-restart { background-color: #e74c3c; color: #fff; margin-top: 10px;}
-        
-        .stats { font-size: 1.2em; margin-top: 10px; border-top: 1px solid #7f8c8d; padding-top: 10px; }
-        .stat-item { display: flex; justify-content: space-between; margin: 5px 0; }
-        .selected { border: 3px solid white; }
-        
-        .info-text { font-size: 0.9em; color: #bdc3c7; text-align: center; }
+
+        button:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 7px 7px 0 var(--c-black);
+        }
+
+        button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--c-black);
+        }
+
+        button:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+
+        #shopItems {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .shop-item {
+            background: white;
+            border: 4px solid var(--c-black);
+            padding: 15px;
+            width: 120px;
+        }
+
+        .item-icon { font-size: 3rem; display: block; margin-bottom: 10px;}
+
     </style>
 </head>
 <body>
 
-    <h1>🌻 植物大战僵尸 (阳光版) 🧟</h1>
-    <p class="info-text">注意：植物需要阳光才能生长！番茄可以产生阳光。</p>
-    
-    <div id="game-container">
-        <!-- 游戏画布 -->
-        <canvas id="gameCanvas" width="800" height="400"></canvas>
+<div id="gameContainer">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
 
-        <!-- 侧边栏：商店和信息 -->
-        <div id="ui-panel">
-            <h3>植物卡片</h3>
-            <p><small>植物需要阳光才能生长。种下后需要等待阳光成熟。</small></p>
-            <button class="btn btn-sunflower" onclick="selectPlant('sunflower')">🌻 番茄 (250金币 + 50阳光)</button>
-            <button class="btn btn-peashooter" onclick="selectPlant('peashooter')">🌿豌豆射手 (100金币 + 20阳光)</button>
-            <button class="btn btn-wallnut" onclick="selectPlant('wallnut')">🌰坚果墙 (50金币 + 100阳光)</button>
-            
-            <div class="stats">
-                <div class="stat-item">🪙 金币: <span id="score">500</span></div>
-                <div class="stat-item">☀️ 阳光: <span id="sun">100</span></div>
-                <div class="stat-item">🧟 zombieCount: <span id="zombieCount">0</span></div>
+    <div id="shopPanel" class="ui-panel">
+        <h1>LEVEL COMPLETE!</h1>
+        <p>目标金额: $<span id="shopTarget"></span></p>
+        <p>你的现金: $<span id="shopCash"></span></p>
+        <p style="color: var(--c-pink); font-size: 1.2rem;">(只能花费超出目标的现金: $<span id="spendableCash"></span>)</p>
+
+        <div id="shopItems">
+            <div class="shop-item">
+                <span class="item-icon">🧨</span>
+                <div>炸药</div>
+                <div>$200</div>
+                <button onclick="buyItem('dynamite', 200)">购买</button>
             </div>
-            <button class="btn btn-restart" onclick="resetGame()">🔄 重置游戏</button>
+            <div class="shop-item">
+                <span class="item-icon">💪</span>
+                <div>力量药水</div>
+                <div>$450</div>
+                <button onclick="buyItem('strength', 450)">购买</button>
+            </div>
+            <div class="shop-item">
+                <span class="item-icon">🍀</span>
+                <div>幸运草</div>
+                <div>$300</div>
+                <button onclick="buyItem('clover', 300)">购买</button>
+            </div>
         </div>
+        <br>
+        <button onclick="nextLevel()" style="font-size: 2rem; background-color: var(--c-pink); color: var(--c-yellow);">开始下一关 NEXT LEVEL >></button>
     </div>
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreEl = document.getElementById('score');
-        const sunEl = document.getElementById('sun');
-        const zombieCountEl = document.getElementById('zombieCount');
+    <div id="gameOverPanel" class="ui-panel">
+        <h1>GAME OVER</h1>
+        <p>你没有达到目标金额。</p>
+        <p>最终得分: $<span id="finalScore"></span></p>
+        <button onclick="restartGame()" style="font-size: 2rem;">重新开始 RESTART</button>
+    </div>
+</div>
 
-        // 游戏配置
-        const GRID_SIZE = 50; // 每个格子的大小
-        const ROWS = 8;
-        const COLS = 12;
-        
-        // 游戏状态
-        let score = 500; // 初始金币
-        let sun = 100;    // 阳光数量
-        let sunRate = 0; // 阳光产生速度
-        let selectedPlantType = null;
-        let gameLoopId;
-        let lastTime = 0;
-        let dropZombieTimer = 0;
-        let sunProductionTimer = 0;
+<script>
+// --- 配置与常量 ---
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const C = {
+    CYAN: '#00FFFF', PINK: '#FF00FF', YELLOW: '#FFFF00', BLACK: '#080808', WHITE: '#FFFFFF',
+    GREY: '#777777', ROCK_COLOR: '#969696', GOLD_COLOR: '#FFD700',
+    FONT: "bold 24px 'Bangers', sans-serif"
+};
 
-        // 植物和僵尸数组
-        let plants = [];
-        let zombies = [];
-        let bullets = []; // 包括子弹和豌豆投手扔出的豌豆
+// 游戏状态
+let gameState = 'START'; // START, PLAYING, SHOP, GAMEOVER
+let level = 1;
+let score = 0;
+let targetScore = 0;
+let timeRemaining = 0;
+let gameLoopId;
+let timerId;
 
-        // 植物定义
-        const PLANTS_DB = {
-            sunflower: { 
-                cost: 250, 
-                sunCost: 50,
-                color: '#e67e22', 
-                height: 40, 
-                shootCooldown: 0,
-                growthTime: 6000, // 生长需要6秒
-                isProducing: true // 成熟后是否持续产生阳光
-            },
-            peashooter: { 
-                cost: 100, 
-                sunCost: 20,
-                color: '#2ecc71', 
-                height: 40, 
-                shootCooldown: 2000,
-                growthTime: 3000,  // 生长需要3秒
-                isProducing: false
-            },
-            wallnut: { 
-                cost: 50, 
-                sunCost: 100,
-                color: '#e67e22',
-                height: 60,
-                shootCooldown: 0,
-                growthTime: 0,   // 坚果不需要生长时间
-                isProducing: false
-            }
-        };
+// 玩家道具库存/状态
+let inventory = { dynamite: 0 };
+let activePowerups = { strength: false, clover: false };
 
-        class Plant {
-            constructor(col, row, type) {
-                this.type = type;
-                this.col = col;
-                this.row = row;
-                this.x = col * GRID_SIZE + 10;
-                this.y = row * GRID_SIZE + 50;
-                this.width = GRID_SIZE - 20;
-                this.height = PLANTS_DB[type].height;
-                this.color = PLANTS_DB[type].color;
-                
-                // 生长相关
-                this.growthTime = PLANTS_DB[type].growthTime;
-                this.elapsedTime = 0;
-                this.isGrown = false;
-                this.canShoot = false;
-                this.lastShot = 0;
-                this.isProducing = PLANTS_DB[type].isProducing; // 是否产生阳光
-            }
+// 钩爪相关
+const minerX = canvas.width / 2;
+const minerY = 60;
+let claw = {
+    x: minerX, y: minerY,
+    angle: Math.PI / 2, // 初始向下
+    angleSpeed: 0.03,
+    angleDir: 1,
+    length: 50,
+    minLength: 50,
+    maxLength: canvas.height + 100,
+    state: 'swinging', // swinging, launching, retracting
+    launchSpeed: 12,
+    baseRetractSpeed: 12,
+    heldItem: null
+};
 
-            draw() {
-                // 绘制生长进度
-                if (this.growthTime > 0 && !this.isGrown) {
-                    const progress = Math.min(this.elapsedTime / this.growthTime, 1);
-                    ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(this.x, this.y - 10, this.width, 10);
-                    ctx.fillStyle = '#f39c12';
-                    ctx.fillRect(this.x, this.y - 10, this.width * progress, 10);
-                    
-                    ctx.fillStyle = '#000';
-                    ctx.textAlign = 'center';
-                    ctx.font = '10px Arial';
-                    ctx.fillText(`${Math.floor(progress * 100)}%`, this.x + this.width/2, this.y);
-                    return;
-                }
+// 地下物品
+let items = [];
+let explosions = []; // 存储爆炸动画效果
 
-                // 成熟植物
-                if (this.type === 'sunflower') {
-                    // 画一个简单的番茄
-                    ctx.fillStyle = '#e67e22';
-                    ctx.beginPath();
-                    ctx.arc(this.x + this.width/2, this.y + this.height - 10, 20, 0, Math.PI * 2);
-                    ctx.fill();
-                    // 画茎
-                    ctx.strokeStyle = '#27ae60';
-                    ctx.lineWidth = 4;
-                    ctx.beginPath();
-                    ctx.moveTo(this.x + this.width/2, this.y + this.height);
-                    ctx.lineTo(this.x + this.width/2, this.y + 40);
-                    ctx.stroke();
-                    
-                    // 产生阳光效果
-                    if (this.isProducing && this.canShoot && Math.random() < 0.05) {
-                        sun++;
-                        drawSunEffect(this.x + this.width/2, this.y);
-                    }
-                } else if (this.type === 'peashooter') {
-                    // 画豌豆射手
-                    ctx.fillStyle = '#2ecc71';
-                    ctx.fillRect(this.x + 5, this.y + 5, this.width - 10, this.height - 10);
-                    // 眼睛
-                    ctx.fillStyle = '#fff';
-                    ctx.fillRect(this.x + 10, this.y + 20, 15, 10);
-                    ctx.fillStyle = '#000';
-                    ctx.fillRect(this.x + 15, this.y + 25, 5, 5);
-                } else if (this.type === 'wallnut') {
-                    // 画坚果墙
-                    ctx.fillStyle = '#f1c40f';
-                    ctx.beginPath();
-                    ctx.arc(this.x + this.width/2, this.y + this.height/2, 30, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.strokeStyle = '#d35400';
-                    ctx.lineWidth = 3;
-                    ctx.stroke();
-                    // 裂纹
-                    ctx.fillStyle = '#e67e22';
-                    ctx.beginPath();
-                    ctx.moveTo(this.x + 15, this.y + 50);
-                    ctx.lineTo(this.x + 35, this.y + 55);
-                    ctx.lineTo(this.x + 15, this.y + 60);
-                    ctx.fill();
-                }
-            }
-
-            update(currentTime) {
-                // 处理生长
-                if (!this.isGrown && this.growthTime > 0) {
-                    this.elapsedTime += currentTime - (this.lastUpdateTime || currentTime);
-                    if (this.elapsedTime >= this.growthTime) {
-                        this.isGrown = true;
-                        this.canShoot = true;
-                    }
-                }
-                
-                this.lastUpdateTime = currentTime;
-                
-                // 成熟后才能攻击
-                if (!this.isGrown || !this.canShoot) return;
-
-                if (this.type === 'peashooter') {
-                    // 检查是否有僵尸在范围内
-                    const zombieInRange = zombies.find(z => z.x < this.x + this.width && z.x + 40 > this.x);
-                    
-                    if (zombieInRange && currentTime - this.lastShot > PLANTS_DB.peashooter.shootCooldown) {
-                        this.shoot();
-                        this.lastShot = currentTime;
-                    }
-                }
-            }
-
-            shoot() {
-                bullets.push(new Bullet(this.x + this.width/2, this.y, -1)); // -1 是向左射击
-            }
-            
-            takeDamage() {
-                // 坚果墙有血量
-                if (this.type === 'wallnut' && this.health > 1) {
-                    this.health--;
-                    return true;
-                }
-                return false;
-            }
+// --- 类定义 ---
+class Item {
+    constructor(x, y, type) {
+        this.x = x; this.y = y; this.type = type;
+        this.a = 0; // 随机角度，用于绘制
+        this.initTypeStats();
+    }
+    initTypeStats() {
+        switch (this.type) {
+            case 'gold_s': this.r = 15; this.val = 50; this.weight = 1.5; break;
+            case 'gold_m': this.r = 25; this.val = 150; this.weight = 3; break;
+            case 'gold_l': this.r = 40; this.val = 500; this.weight = 6; break;
+            case 'rock_s': this.r = 20; this.val = 15; this.weight = 5; break;
+            case 'rock_l': this.r = 45; this.val = 35; this.weight = 10; break;
+            case 'diamond': this.r = 12; this.val = 750; this.weight = 1; break;
+            case 'bag': this.r = 20; this.val = '?'; this.weight = 2; break;
+            case 'tnt': this.r = 18; this.val = 0; this.weight = 1; break;
         }
+    }
+    draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.a);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = C.BLACK;
 
-        class Zombie {
-            constructor() {
-                this.x = canvas.width; // 从右侧出现
-                this.width = 40;
-                this.height = 60;
-                this.speed = 0.5;
-                this.color = '#e74c3c';
-                this.health = 3;
-                this.isDead = false;
-                
-                // 随机分配一行
-                const randomRow = Math.floor(Math.random() * ROWS);
-                this.y = randomRow * GRID_SIZE + 50;
-            }
-
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                
-                // 简单的眼睛
-                ctx.fillStyle = 'white';
-                ctx.fillRect(this.x + 5, this.y + 10, 10, 10);
-                ctx.fillRect(this.x + 25, this.y + 10, 10, 10);
-                ctx.fillStyle = 'black';
-                ctx.fillRect(this.x + 8, this.y + 14, 4, 4);
-                ctx.fillRect(this.x + 30, this.y + 14, 4, 4);
-                
-                // 受伤效果
-                if (this.health < 3) {
-                    ctx.fillStyle = 'yellow';
-                    ctx.fillText('!', this.x + 10, this.y + 35);
-                }
-            }
-
-            update() {
-                this.x -= this.speed;
-                
-                // 检查是否到达左边
-                if (this.x < 0) {
-                    this.isDead = true;
-                    return false; // 失败
-                }
-                return true;
-            }
-        }
-
-        class Bullet {
-            constructor(x, y, dir) {
-                this.x = x;
-                this.y = y;
-                this.vx = 5 * dir; // 速度
-                this.radius = 5;
-                this.isDead = false;
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#fff';
-                ctx.fill();
-            }
-
-            update() {
-                this.x += this.vx;
-
-                // 边界检查
-                if (this.x < 0 || this.x > canvas.width) {
-                    this.isDead = true;
-                }
-
-                // 碰撞检测 (子弹 vs 僵尸)
-                for (let z of zombies) {
-                    if (!z.isDead && 
-                        this.x > z.x && this.x < z.x + z.width &&
-                        this.y > z.y && this.y < z.y + z.height) {
-                        
-                        z.health--;
-                        this.isDead = true; // 子弹消失
-                        
-                        if (z.health <= 0) {
-                            z.isDead = true;
-                            // 杀死僵尸奖励阳光
-                            sun += 25;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        // --- 游戏控制函数 ---
-
-        function selectPlant(type) {
-            selectedPlantType = type;
-            
-            // 更新UI按钮样式
-            document.querySelectorAll('.btn-sunflower, .btn-peashooter, .btn-wallnut').forEach(b => b.classList.remove('selected'));
-            document.querySelector(`.btn-${type}`).classList.add('selected');
-        }
-
-        function resetGame() {
-            score = 50;
-            sun = 0;
-            plants = [];
-            zombies = [];
-            bullets = [];
-            lastTime = 0;
-            updateUI();
-        }
-
-        function updateUI() {
-            scoreEl.innerText = score;
-            sunEl.innerText = sun;
-            zombieCountEl.innerText = zombies.length;
-        }
-
-        function drawBackground() {
-            // 绘制网格
-            ctx.strokeStyle = '#5d6d7e';
-            ctx.lineWidth = 1;
-            
-            // 地面线条
-            for (let i = 0; i <= ROWS; i++) {
-                ctx.beginPath();
-                ctx.moveTo(0, i * GRID_SIZE + 50);
-                ctx.lineTo(canvas.width, i * GRID_SIZE + 50);
-                ctx.stroke();
-            }
-            for (let i = 0; i <= COLS; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * GRID_SIZE, 0); // 背景可以画满高度
-                ctx.lineTo(i * GRID_SIZE, canvas.height);
-                ctx.stroke();
-            }
-
-            // 绘制地面草地
-            ctx.fillStyle = '#76d36e';
-            ctx.fillRect(0, (ROWS) * GRID_SIZE + 50, canvas.width, canvas.height - ((ROWS) * GRID_SIZE + 50));
-        }
-        
-        function drawSunEffect(x, y) {
+        if (this.type.includes('gold')) {
+            ctx.fillStyle = C.GOLD_COLOR;
+            ctx.beginPath(); ctx.arc(0, 0, this.r, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            // 闪光效果
+            ctx.fillStyle = C.WHITE; ctx.beginPath(); ctx.arc(-this.r/3, -this.r/3, this.r/4, 0, Math.PI*2); ctx.fill();
+        } else if (this.type.includes('rock')) {
+            ctx.fillStyle = C.ROCK_COLOR;
+            // 画一个不规则的多边形
             ctx.beginPath();
-            ctx.fillStyle = `rgba(241, 196, 15, ${Math.random()})`;
-            ctx.arc(x, y, 20, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = 'orange';
-            ctx.stroke();
+            ctx.moveTo(-this.r, -this.r/2); ctx.lineTo(0, -this.r); ctx.lineTo(this.r, -this.r/2);
+            ctx.lineTo(this.r, this.r/2); ctx.lineTo(0, this.r); ctx.lineTo(-this.r, this.r/2);
+            ctx.closePath(); ctx.fill(); ctx.stroke();
+        } else if (this.type === 'diamond') {
+            ctx.fillStyle = C.CYAN;
+            ctx.beginPath(); ctx.moveTo(0, -this.r); ctx.lineTo(this.r, 0); ctx.lineTo(0, this.r); ctx.lineTo(-this.r, 0); ctx.closePath();
+            ctx.fill(); ctx.stroke();
+             // 闪光效果
+             ctx.fillStyle = C.WHITE; ctx.beginPath(); ctx.moveTo(0, -this.r/2); ctx.lineTo(this.r/2, 0); ctx.lineTo(0, this.r/2); ctx.lineTo(-this.r/2, 0); ctx.closePath(); ctx.fill();
+        } else if (this.type === 'bag') {
+            ctx.fillStyle = C.PINK;
+            ctx.beginPath(); ctx.arc(0, 2, this.r, 0, Math.PI, false); // Bottom
+            ctx.lineTo(-this.r+5, -this.r+5); ctx.lineTo(this.r-5, -this.r+5); ctx.closePath();
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = C.YELLOW; ctx.fillText('?', -5, 5);
+        } else if (this.type === 'tnt') {
+            ctx.fillStyle = 'red';
+            ctx.fillRect(-this.r+5, -this.r, this.r*2-10, this.r*2); ctx.strokeRect(-this.r+5, -this.r, this.r*2-10, this.r*2);
+            ctx.fillStyle = C.YELLOW; ctx.fillText('TNT', -14, 5);
+            // 引线
+            ctx.beginPath(); ctx.moveTo(0, -this.r); ctx.lineTo(5, -this.r-10); ctx.stroke();
         }
+        ctx.restore();
+    }
+}
 
-        // --- 核心循环 ---
+class Explosion {
+    constructor(x, y) {
+        this.x = x; this.y = y;
+        this.r = 10;
+        this.maxR = 120;
+        this.opacity = 1;
+    }
+    update() {
+        this.r += 10;
+        this.opacity -= 0.05;
+    }
+    draw() {
+        if (this.opacity <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = C.YELLOW;
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = C.PINK; ctx.lineWidth = 5; ctx.stroke();
+        ctx.restore();
+    }
+}
 
-        function loop(timestamp) {
-            const deltaTime = timestamp - lastTime;
-            lastTime = timestamp;
+// --- 游戏核心逻辑 ---
 
-            // 1. 清空画布
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+function initLevel(lvl) {
+    level = lvl;
+    targetScore = score + level * 1200 + 500; // 目标难度曲线
+    timeRemaining = 60;
+    items = [];
+    claw.state = 'swinging';
+    claw.length = claw.minLength;
+    claw.heldItem = null;
+    explosions = [];
 
-            // 2. 绘制背景
-            drawBackground();
+    // 简单的关卡生成逻辑 (越往后好东西越少，石头越多)
+    let goldCount = Math.max(3, 10 - lvl);
+    let rockCount = 5 + lvl * 2;
+    let diamondCount = lvl >= 3 ? Math.floor(lvl/2) : (Math.random() > 0.7 ? 1 : 0);
+    let tntCount = lvl >= 2 ? Math.floor(lvl/3) + 1 : 0;
+    let bagCount = 2;
 
-            // 3. 阳光自动恢复 (没有阳光机制，只是基础玩法)
-            sunProductionTimer += deltaTime;
-            if (sunProductionTimer > 2000 && sun < 500) {
-                sun++;
-                sunProductionTimer = 0;
-            }
+    generateItems('gold_l', Math.floor(goldCount/3));
+    generateItems('gold_m', Math.floor(goldCount/3));
+    generateItems('gold_s', goldCount - Math.floor(goldCount/3)*2);
+    generateItems('rock_l', Math.floor(rockCount/2));
+    generateItems('rock_s', rockCount - Math.floor(rockCount/2));
+    generateItems('diamond', diamondCount);
+    generateItems('tnt', tntCount);
+    generateItems('bag', bagCount);
 
-            // 4. 生成僵尸逻辑 - 只有当有阳光时才会生成僵尸，并且生成频率加速
-            dropZombieTimer += deltaTime;
-            let dropRate = Math.max(1000, 5000 - sun * 50); // 阳光越多，僵尸越多
-            if (dropZombieTimer > dropRate && sun > 0) {
-                zombies.push(new Zombie());
-                dropZombieTimer = 0;
-            }
+    document.getElementById('shopPanel').style.display = 'none';
+    document.getElementById('gameOverPanel').style.display = 'none';
+    gameState = 'PLAYING';
 
-            // 5. 更新和绘制所有实体
-            
-            // 植物
-            plants.forEach(p => {
-                p.draw();
-                p.update(timestamp);
-            });
-
-            // 僵尸
-            let gameOver = false;
-            zombies = zombies.filter(z => !z.isDead);
-            for (let z of zombies) {
-                z.draw();
-                if (!z.update()) {
-                    gameOver = true;
-                }
-            }
-            
-            if (gameOver) {
-                alert("游戏失败！僵尸入侵了你的脑子！");
-                resetGame();
-                return;
-            }
-
-            // 子弹
-            bullets = bullets.filter(b => !b.isDead);
-            bullets.forEach(b => {
-                b.draw();
-                b.update();
-            });
-
-            updateUI();
-            if (gameOver) return;
-            gameLoopId = requestAnimationFrame(loop);
+    clearInterval(timerId);
+    timerId = setInterval(() => {
+        if (gameState === 'PLAYING') {
+            timeRemaining--;
+            if (timeRemaining <= 0) checkLevelEnd();
         }
+    }, 1000);
+}
 
-        // --- 鼠标点击事件 ---
+function generateItems(type, count) {
+    for (let i = 0; i < count; i++) {
+        let x = Math.random() * (canvas.width - 100) + 50;
+        let y = Math.random() * (canvas.height - 250) + 200;
+        items.push(new Item(x, y, type));
+    }
+}
 
-        canvas.addEventListener('mousedown', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+function update() {
+    if (gameState !== 'PLAYING') return;
 
-            // 计算点击了哪个格子
-            const col = Math.floor(x / GRID_SIZE);
-            const row = Math.floor((y - 50) / GRID_SIZE); // 减去顶部偏移
+    // 1. 更新钩爪状态
+    if (claw.state === 'swinging') {
+        claw.angle += claw.angleSpeed * claw.angleDir;
+        if (claw.angle > Math.PI - 0.2 || claw.angle < 0.2) claw.angleDir *= -1;
+        claw.x = minerX + Math.cos(claw.angle) * claw.length;
+        claw.y = minerY + Math.sin(claw.angle) * claw.length;
+    }
+    else if (claw.state === 'launching') {
+        claw.length += claw.launchSpeed;
+        claw.x = minerX + Math.cos(claw.angle) * claw.length;
+        claw.y = minerY + Math.sin(claw.angle) * claw.length;
 
-            // 验证点击位置是否在游戏区域
-            if (col >= 0 && col < COLS && row >= 0 && row < ROWS) {
-                
-                // 检查该格子是否已有植物
-                const existingPlant = plants.find(p => p.col === col && p.row === row);
-                
-                if (existingPlant) {
-                    // 如果植物正在生长中，可以取消
-                    if (!existingPlant.isGrown) {
-                        plants = plants.filter(p => p !== existingPlant);
-                        score += Math.floor(PLANTS_DB[existingPlant.type].cost * 0.5); // 退回50%金币
-                        sun += Math.floor(PLANTS_DB[existingPlant.type].sunCost * 0.3); // 退回30%阳光
-                        updateUI();
-                        return;
-                    }
-                    return; // 已经有了成熟的植物
+        // 边界碰撞或最大长度
+        if (claw.length >= claw.maxLength || claw.x < 0 || claw.x > canvas.width || claw.y > canvas.height) {
+            claw.state = 'retracting';
+        }
+        // 物品碰撞检测
+        for (let i = items.length - 1; i >= 0; i--) {
+            let item = items[i];
+            let dx = claw.x - item.x;
+            let dy = claw.y - item.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < item.r + 5) {
+                // 抓到了!
+                if (item.type === 'tnt') {
+                    triggerExplosion(item.x, item.y);
+                    items.splice(i, 1);
+                    claw.state = 'retracting';
+                    claw.launchSpeed = 20; // 爆炸后快速收回
+                } else {
+                    claw.heldItem = item;
+                    claw.state = 'retracting';
+                    items.splice(i, 1);
                 }
-                
-                // 1. 如果有选中植物，尝试种植
-                if (selectedPlantType) {
-                    const cost = PLANTS_DB[selectedPlantType].cost;
-                    const sunCost = PLANTS_DB[selectedPlantType].sunCost;
-                    
-                    // 检查资源是否足够
-                    if (score >= cost && sun >= sunCost) {
-                        score -= cost;
-                        sun -= sunCost;
-                        plants.push(new Plant(col, row, selectedPlantType));
-                        updateUI();
-                        
-                        // 取消选择
-                        selectedPlantType = null;
-                        document.querySelectorAll('.btn-sunflower, .btn-peashooter, .btn-wallnut').forEach(b => b.classList.remove('selected'));
-                    } else {
-                        // 资源不足提示
-                        const msg = [];
-                        if (score < cost) msg.push(`金币不足 (+${cost})`);
-                        if (sun < sunCost) msg.push(`阳光不足 (+${sunCost})`);
-                        alert('资源不足:\n' + msg.join('\n'));
-                    }
-                }
+                break;
             }
-        });
+        }
+    }
+    else if (claw.state === 'retracting') {
+        let speed = claw.baseRetractSpeed;
+        if (claw.heldItem) {
+            let weightFactor = claw.heldItem.weight;
+            if (activePowerups.strength) weightFactor = Math.max(1, weightFactor / 3); // 力量药水效果
+            speed = speed / weightFactor;
+        }
+        claw.length -= speed;
+        if (claw.length <= claw.minLength) {
+            claw.length = claw.minLength;
+            claw.state = 'swinging';
+            claw.launchSpeed = 12; // 重置速度（以防TNT加速）
+            if (claw.heldItem) collectItem(claw.heldItem);
+            claw.heldItem = null;
+        }
+        claw.x = minerX + Math.cos(claw.angle) * claw.length;
+        claw.y = minerY + Math.sin(claw.angle) * claw.length;
+        if (claw.heldItem) {
+            claw.heldItem.x = claw.x; claw.heldItem.y = claw.y;
+        }
+    }
 
-        // --- 启动游戏 ---
-        gameLoopId = requestAnimationFrame(loop);
+    // 2. 更新爆炸效果
+    explosions.forEach(exp => exp.update());
+    explosions = explosions.filter(exp => exp.opacity > 0);
+}
 
-    </script>
+function triggerExplosion(x, y) {
+    explosions.push(new Explosion(x, y));
+    let blastRadius = 150;
+    for (let i = items.length - 1; i >= 0; i--) {
+        let item = items[i];
+        let dx = x - item.x;
+        let dy = y - item.y;
+        if (Math.sqrt(dx*dx + dy*dy) < blastRadius) {
+            if (item.type === 'tnt') triggerExplosion(item.x, item.y); // 连锁爆炸
+            items.splice(i, 1);
+        }
+    }
+}
+
+function collectItem(item) {
+    let value = item.val;
+    if (item.type === 'bag') {
+        // 福袋逻辑
+        let roll = Math.random();
+        if (activePowerups.clover) roll += 0.2; // 幸运草效果
+
+        if (roll > 0.85) { value = 800; showFloatingText("$800!", claw.x, claw.y); }
+        else if (roll > 0.6) { value = 'strength'; showFloatingText("力量提升!", claw.x, claw.y); }
+        else if (roll > 0.4) { value = 200; showFloatingText("$200", claw.x, claw.y); }
+        else { value = 50; showFloatingText("$50...", claw.x, claw.y); }
+    }
+
+    if (value === 'strength') {
+        // 立即生效，或者存到下一个关卡? 经典版矿工通常是存到下一关或当前关立即生效。这里简化为存个标记给下一关商店用
+        // 为了简化，我们让它立即生效并显示在UI上，但商店购买的是"提升下一关"
+        // 这里为了符合你的"力量药水"设定(提升下一关)，我们把商店买的标记为 next_strength
+        // 这里的福袋直接给当前能力
+        activePowerups.strength = true;
+        setTimeout(() => activePowerups.strength = false, 5000); // 持续5秒提示或者仅本钩爪有效?
+        // 经典版通常是持续一钩的。我们简化：福袋获得临时力量
+        // 为了符合"提升下一关"的商店逻辑，福袋应该算作"抽到了力量"。
+        // 让我们简化：福袋如果是力量，直接加到当前关卡剩余时间内
+        activePowerups.strength = true;
+        // 恢复原状代码在checkLevelEnd或者下一钩开始前很难判断。
+        // 让我们修改逻辑：福袋如果是力量，给inventory加一个本关可用的标记
+    } else {
+        score += value;
+    }
+}
+
+function useDynamite() {
+    if (claw.state === 'retracting' && claw.heldItem && inventory.dynamite > 0) {
+        inventory.dynamite--;
+        triggerExplosion(claw.x, claw.y);
+        claw.heldItem = null;
+        // 炸药炸完直接空手收回，不需要特殊处理状态，下一帧retracting继续
+    }
+}
+
+// --- 渲染 ---
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. 绘制UI信息栏 (顶部)
+    drawUIBar();
+
+    // 2. 绘制矿工 (简化为一个方块和头部)
+    drawMiner();
+
+    // 3. 绘制钩爪连接线
+    ctx.beginPath();
+    ctx.moveTo(minerX, minerY);
+    ctx.lineTo(claw.x, claw.y);
+    ctx.strokeStyle = C.BLACK;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // 4. 绘制物品 (在地下的)
+    items.forEach(item => item.draw());
+
+    // 5. 绘制被抓取的物品
+    if (claw.heldItem) claw.heldItem.draw();
+
+    // 6. 绘制钩爪头
+    drawClawHead();
+
+    // 7. 绘制爆炸
+    explosions.forEach(exp => exp.draw());
+
+}
+
+function drawUIBar() {
+    ctx.fillStyle = C.YELLOW;
+    ctx.fillRect(0, 0, canvas.width, 50);
+    ctx.strokeStyle = C.BLACK;
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(0, 50); ctx.lineTo(canvas.width, 50); ctx.stroke();
+
+    ctx.fillStyle = C.BLACK;
+    ctx.font = C.FONT;
+    ctx.fillText(`💰 金钱: $${score}`, 20, 32);
+    ctx.fillText(`🎯 目标: $${targetScore}`, 250, 32);
+    ctx.fillText(`⏰ 时间: ${timeRemaining}`, 500, 32);
+    ctx.fillText(`LEVEL: ${level}`, 650, 32);
+
+    // 绘制道具栏
+    if (inventory.dynamite > 0) {
+         ctx.fillStyle = 'red'; ctx.fillText(`🧨 x${inventory.dynamite}`, 730, 32);
+         ctx.strokeStyle = C.BLACK; ctx.strokeText(`🧨 x${inventory.dynamite}`, 730, 32);
+    }
+    // 绘制激活状态
+    if(activePowerups.strength) ctx.fillText('💪', 620, 32);
+    if(activePowerups.clover) ctx.fillText('🍀', 590, 32);
+
+    // 绘制UI描边
+    ctx.strokeStyle = C.CYAN;
+    ctx.lineWidth = 1;
+    ctx.strokeText(`💰 金钱: $${score}`, 20, 32);
+    ctx.strokeText(`🎯 目标: $${targetScore}`, 250, 32);
+    ctx.strokeText(`⏰ 时间: ${timeRemaining}`, 500, 32);
+
+    // 斜线装饰
+    ctx.save();
+    ctx.translate(400, 25);
+    ctx.rotate(-0.1);
+    ctx.beginPath();
+    ctx.moveTo(-200, 0); ctx.lineTo(200, 0);
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawMiner() {
+    // 硬阴影
+    ctx.fillStyle = C.BLACK;
+    ctx.fillRect(minerX - 20, minerY - 40, 45, 50);
+    // 身体
+    ctx.fillStyle = C.CYAN;
+    ctx.strokeStyle = C.BLACK;
+    ctx.lineWidth = 3;
+    ctx.fillRect(minerX - 15, minerY - 35, 35, 40);
+    ctx.strokeRect(minerX - 15, minerY - 35, 35, 40);
+    // 头
+    ctx.fillStyle = C.YELLOW;
+    ctx.strokeStyle = C.BLACK;
+    ctx.beginPath();
+    ctx.arc(minerX, minerY - 50, 18, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+    // 卷轴机
+    ctx.fillStyle = C.GREY;
+    ctx.fillRect(minerX - 25, minerY - 10, 55, 20);
+    ctx.strokeRect(minerX - 25, minerY - 10, 55, 20);
+}
+
+function drawClawHead() {
+    ctx.save();
+    ctx.translate(claw.x, claw.y);
+    ctx.rotate(claw.angle + Math.PI/2);
+    ctx.fillStyle = C.GREY;
+    ctx.strokeStyle = C.BLACK;
+    ctx.lineWidth = 3;
+    // 画一个简单的钳子形状
+    ctx.beginPath();
+    ctx.moveTo(-10, 0); ctx.lineTo(-15, 15); ctx.lineTo(-5, 20); ctx.lineTo(0, 5);
+    ctx.lineTo(5, 20); ctx.lineTo(15, 15); ctx.lineTo(10, 0);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+}
+
+// --- 游戏流程控制 ---
+
+function checkLevelEnd() {
+    gameState = 'FINISHED';
+    clearInterval(timerId);
+    if (score >= targetScore) {
+        // 过关，进入商店
+        gameState = 'SHOP';
+        showShop();
+    } else {
+        // 失败
+        gameState = 'GAMEOVER';
+        document.getElementById('finalScore').innerText = score;
+        document.getElementById('gameOverPanel').style.display = 'block';
+    }
+}
+
+function showShop() {
+    const spendable = Math.max(0, score - targetScore);
+    document.getElementById('shopTarget').innerText = targetScore;
+    document.getElementById('shopCash').innerText = score;
+    document.getElementById('spendableCash').innerText = spendable;
+
+    // 更新按钮状态
+    const btns = document.querySelectorAll('.shop-item button');
+    btns[0].disabled = spendable < 200;
+    btns[1].disabled = spendable < 450;
+    btns[2].disabled = spendable < 300;
+
+    document.getElementById('shopPanel').style.display = 'block';
+}
+
+function buyItem(item, price) {
+    const spendable = Math.max(0, score - targetScore);
+    if (spendable >= price) {
+        score -= price;
+        if (item === 'dynamite') inventory.dynamite++;
+        if (item === 'strength') activePowerups.strength = true;
+        if (item === 'clover') activePowerups.clover = true;
+        showShop(); // 更新界面显示
+    }
+}
+
+function nextLevel() {
+    initLevel(level + 1);
+}
+
+function restartGame() {
+    score = 0;
+    level = 1;
+    inventory = { dynamite: 0 };
+    activePowerups = { strength: false, clover: false };
+    initLevel(1);
+}
+
+// 简单的浮动文字效果（简化版，直接画在canvas上被覆盖，这里略过复杂动画，仅用console或简单的DOM提示代替）
+function showFloatingText(text, x, y) {
+    // 在这里为了代码简洁，我们只在控制台或者通过UI闪烁来反馈
+    console.log(text);
+}
+
+// --- 输入控制 ---
+function handleInput(e) {
+    if (gameState !== 'PLAYING') return;
+    e.preventDefault();
+
+    // 发射钩爪 (鼠标点击 或 空格键/下方向键)
+    if ((e.type === 'mousedown' || e.code === 'Space' || e.code === 'ArrowDown') && claw.state === 'swinging') {
+        claw.state = 'launching';
+    }
+    // 使用炸药 (上方向键 或 'D'键)
+    if ((e.code === 'ArrowUp' || e.code === 'KeyD') && claw.state === 'retracting') {
+        useDynamite();
+    }
+}
+
+canvas.addEventListener('mousedown', handleInput);
+document.addEventListener('keydown', handleInput);
+
+
+// --- 游戏主循环 ---
+function gameLoop() {
+    update();
+    draw();
+    gameLoopId = requestAnimationFrame(gameLoop);
+}
+
+// 开始游戏
+restartGame();
+gameLoop();
+
+</script>
 </body>
 </html>
+
+    
