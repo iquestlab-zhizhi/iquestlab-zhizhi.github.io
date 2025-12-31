@@ -35,9 +35,11 @@ const DICT = {
     lang_to_zh: "切换到中文",
     lang_to_en: "切换到英文",
 
+    contact_email_label: "邮箱",
+
     home_section_nav_aria: "页面分区导航",
     home_hero_image_alt: "首页主视觉图",
-    home_hero_lead: "新一代面向软件工程、竞赛编程和工具使用的代码大模型系列",
+    home_hero_lead: "新一代面向软件工程、竞赛编程的代码大模型系列",
     home_hero_models_aria: "模型规格：7B、14B、40B、40B-Loop",
 
     home_features_aria: "核心特点",
@@ -149,7 +151,7 @@ const DICT = {
     demo6_item5: "辅助功能：内置 FPS 计数器；按 Space 暂停/继续。",
     demo6_iframe_title: "Boids Algorithm - Flocking Simulation",
 
-    showcase_new_title: "ICPC 北部欧亚大陆总决赛（镜像赛）",
+    showcase_new_title: "ICPC 北部欧亚大陆区域赛总决赛（镜像赛）",
     showcase_new_desc: "描述待定。",
     showcase_new_image_alt: "使用示例图片（待定）",
   },
@@ -179,10 +181,12 @@ const DICT = {
     lang_to_zh: "Switch to Chinese",
     lang_to_en: "Switch to English",
 
+    contact_email_label: "Email",
+
     home_section_nav_aria: "Page sections",
     home_hero_image_alt: "Hero image",
     home_hero_lead:
-      "A new generation of code LLMs for software engineering, competitive programming, and tool use.",
+      "A new generation of code LLMs for software engineering and competitive programming.",
     home_hero_models_aria: "Model sizes: 7B, 14B, 40B, 40B-Loop",
 
     home_features_aria: "Features",

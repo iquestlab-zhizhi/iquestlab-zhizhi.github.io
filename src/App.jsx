@@ -3,6 +3,21 @@ import Layout from "./components/Layout.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import SimplePage from "./pages/SimplePage.jsx";
+import { useLanguage } from "./i18n/LanguageContext.jsx";
+
+function ContactContent() {
+  const { t } = useLanguage();
+  const email = "research@iquestlab.com";
+
+  return (
+    <p>
+      {t("contact_email_label")}：{" "}
+      <a href={`mailto:${email}`} target="_blank" rel="noreferrer">
+        {email}
+      </a>
+    </p>
+  );
+}
 
 export default function App() {
   return (
@@ -16,7 +31,11 @@ export default function App() {
         />
         <Route
           path="/contact"
-          element={<SimplePage titleKey="page_contact" />}
+          element={
+            <SimplePage titleKey="page_contact">
+              <ContactContent />
+            </SimplePage>
+          }
         />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

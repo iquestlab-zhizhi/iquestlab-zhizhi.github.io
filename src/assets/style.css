@@ -417,6 +417,12 @@ html[lang="en"] .hero .subtitle {
   background: rgba(255, 255, 255, 1);
 }
 
+.simple-page-actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
+}
+
 .hero-image {
   width: 100%;
   margin: 16px auto 0;
