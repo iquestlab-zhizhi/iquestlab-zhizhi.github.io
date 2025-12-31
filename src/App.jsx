@@ -9,9 +9,15 @@ export default function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
-        <Route path="/report" element={<SimplePage title="技术报告" />} />
-        <Route path="/download" element={<SimplePage title="模型下载" />} />
-        <Route path="/contact" element={<SimplePage title="联系我们" />} />
+        <Route path="/report" element={<SimplePage titleKey="page_report" />} />
+        <Route
+          path="/download"
+          element={<SimplePage titleKey="page_download" />}
+        />
+        <Route
+          path="/contact"
+          element={<SimplePage titleKey="page_contact" />}
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

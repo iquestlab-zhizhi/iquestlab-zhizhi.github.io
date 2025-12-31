@@ -14,21 +14,23 @@ import {
   FiFileText,
 } from "react-icons/fi";
 import { assetUrl } from "../utils/assetUrl.js";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 export default function HomePage() {
+  const { t } = useLanguage();
   const demoSrc = (fileName) => assetUrl(`demo/${fileName}`);
   const loopDemoSrc = (fileName) => assetUrl(`demo_loop/${fileName}`);
 
   const sections = useMemo(
     () => [
-      { id: "features", label: "核心特点" },
-      { id: "pipeline", label: "训练流程" },
-      { id: "benchmark", label: "基准表现" },
-      { id: "specs", label: "规格" },
-      { id: "loop", label: "Loop 对比" },
-      { id: "showcases", label: "使用示例" },
+      { id: "features", label: t("section_features") },
+      { id: "pipeline", label: t("section_pipeline") },
+      { id: "benchmark", label: t("section_benchmark") },
+      { id: "specs", label: t("section_specs") },
+      { id: "loop", label: t("section_loop") },
+      { id: "showcases", label: t("section_showcases") },
     ],
-    []
+    [t]
   );
 
   const [activeSection, setActiveSection] = useState("hero");
@@ -167,7 +169,7 @@ export default function HomePage() {
 
   return (
     <main className="home-page">
-      <nav className="section-nav" aria-label="页面分区导航">
+      <nav className="section-nav" aria-label={t("home_section_nav_aria")}>
         <div className="section-nav-inner">
           {sections.map((s) => (
             <a
@@ -206,19 +208,20 @@ export default function HomePage() {
         aria-label="Hero"
       >
         <div className="content-section">
-          <div className="hero-image" data-reveal>
-            <img src={assetUrl("images/image-main.png")} alt="首页主视觉图" />
+          <div className="hero-image hero-image--no-border" data-reveal>
+            <img
+              src={assetUrl("images/iquest.svg")}
+              alt={t("home_hero_image_alt")}
+            />
           </div>
           <p className="subtitle">
-            <span className="subtitle-lead">
-              新一代面向软件工程、竞赛编程和工具使用的代码大模型系列
-            </span>
+            <span className="subtitle-lead">{t("home_hero_lead")}</span>
             <span className="subtitle-sep" aria-hidden="true">
               ：
             </span>
             <span
               className="subtitle-models"
-              aria-label="模型规格：7B、14B、40B、40B-Loop"
+              aria-label={t("home_hero_models_aria")}
             >
               <span className="subtitle-chip">7B</span>
               <span className="subtitle-chip">14B</span>
@@ -228,11 +231,11 @@ export default function HomePage() {
           </p>
           <div className="hero-actions">
             <Link className="btn btn-primary" to="/download">
-              模型下载
+              {t("cta_download")}
               <FiDownload className="btn-icon" size={16} aria-hidden="true" />
             </Link>
             <Link className="btn btn-secondary" to="/report">
-              技术报告
+              {t("cta_report")}
               <FiFileText className="btn-icon" size={16} aria-hidden="true" />
             </Link>
           </div>
@@ -244,19 +247,21 @@ export default function HomePage() {
         id="features"
         data-section
         className="page-section section-features"
-        aria-label="核心特点"
+        aria-label={t("home_features_aria")}
       >
         <div className="content-section">
-          <h2>核心特点</h2>
+          <h2>{t("section_features")}</h2>
           <ul className="feature-grid">
             <li className="feature-card">
               <div className="feature-icon" aria-hidden="true">
                 <FiGitBranch size={18} />
               </div>
               <div className="feature-body">
-                <div className="feature-title">Code-Flow 训练</div>
+                <div className="feature-title">
+                  {t("home_feature_codeflow_title")}
+                </div>
                 <div className="feature-desc">
-                  基于 Code-Flow 的多阶段训练策略，跟踪代码逻辑演化过程
+                  {t("home_feature_codeflow_desc")}
                 </div>
               </div>
             </li>
@@ -265,9 +270,11 @@ export default function HomePage() {
                 <FiCpu size={18} />
               </div>
               <div className="feature-body">
-                <div className="feature-title">增强推理能力</div>
+                <div className="feature-title">
+                  {t("home_feature_reason_title")}
+                </div>
                 <div className="feature-desc">
-                  加入 32k 推理与智能体轨迹，增强过程推理与长上下文稳定性
+                  {t("home_feature_reason_desc")}
                 </div>
               </div>
             </li>
@@ -276,9 +283,11 @@ export default function HomePage() {
                 <FiShuffle size={18} />
               </div>
               <div className="feature-body">
-                <div className="feature-title">双路径训练</div>
+                <div className="feature-title">
+                  {t("home_feature_dual_title")}
+                </div>
                 <div className="feature-desc">
-                  两条后训练路径：Thinking（强化推理）与 Instruct（通用协助）
+                  {t("home_feature_dual_desc")}
                 </div>
               </div>
             </li>
@@ -287,9 +296,11 @@ export default function HomePage() {
                 <FiRefreshCw size={18} />
               </div>
               <div className="feature-body">
-                <div className="feature-title">Loop 架构</div>
+                <div className="feature-title">
+                  {t("home_feature_loop_title")}
+                </div>
                 <div className="feature-desc">
-                  Loop结构用以降低显存和kv_cache占用，同性能下提升模型吞吐
+                  {t("home_feature_loop_desc")}
                 </div>
               </div>
             </li>
@@ -298,9 +309,11 @@ export default function HomePage() {
                 <FiServer size={18} />
               </div>
               <div className="feature-body">
-                <div className="feature-title">高效部署</div>
+                <div className="feature-title">
+                  {t("home_feature_deploy_title")}
+                </div>
                 <div className="feature-desc">
-                  单卡3090/4090即可部署（int4版本）；非量化版单卡H20全部可部署
+                  {t("home_feature_deploy_desc")}
                 </div>
               </div>
             </li>
@@ -309,9 +322,11 @@ export default function HomePage() {
                 <FiTrendingDown size={18} />
               </div>
               <div className="feature-body">
-                <div className="feature-title">成本优化</div>
+                <div className="feature-title">
+                  {t("home_feature_cost_title")}
+                </div>
                 <div className="feature-desc">
-                  训练成本1.05x or 1.1x，达到帕累托前沿
+                  {t("home_feature_cost_desc")}
                 </div>
               </div>
             </li>
@@ -324,19 +339,16 @@ export default function HomePage() {
         id="pipeline"
         data-section
         className="page-section section-pipeline"
-        aria-label="训练流程"
+        aria-label={t("home_pipeline_aria")}
       >
         <div className="content-section">
-          <h2>训练流程</h2>
-          <p>
-            训练包含Pre-Train、Annealing、Mid-Train，以及Post-Train，形成完整的能力进阶结构。
-            通过引入代码库变更流、长上下文数据与思维强化信号，模型在真实任务中获得更稳定的行为与更低的错误传播率。
-          </p>
+          <h2>{t("section_pipeline")}</h2>
+          <p>{t("home_pipeline_desc")}</p>
           <div className="media-wrap" data-reveal>
             <img
               src={assetUrl("images/pipeline.png")}
               className="pipeline-image"
-              alt="训练流程图"
+              alt={t("home_pipeline_image_alt")}
             />
           </div>
         </div>
@@ -347,16 +359,16 @@ export default function HomePage() {
         id="benchmark"
         data-section
         className="page-section section-benchmark"
-        aria-label="基准表现"
+        aria-label={t("home_benchmark_aria")}
       >
         <div className="content-section">
-          <h2>基准表现</h2>
-          <p>
-            在多个关键编码任务基准中取得领先表现，包括 SWE-Bench
-            Verified、LiveCodeBench v6、Terminal Bench 等。
-          </p>
+          <h2>{t("section_benchmark")}</h2>
+          <p>{t("home_benchmark_desc")}</p>
           <div className="media-wrap" data-reveal>
-            <img src={assetUrl("images/benchmark.jpg")} alt="基准柱状图" />
+            <img
+              src={assetUrl("images/benchmark.jpg")}
+              alt={t("home_benchmark_image_alt")}
+            />
           </div>
         </div>
       </section>
@@ -366,19 +378,19 @@ export default function HomePage() {
         id="specs"
         data-section
         className="page-section section-specs"
-        aria-label="规格"
+        aria-label={t("home_specs_aria")}
       >
         <div className="content-section">
-          <h2>规格</h2>
+          <h2>{t("section_specs")}</h2>
           <div className="spec-table-wrap">
             <div className="spec-table-scroll">
               <table className="spec-table">
                 <thead>
                   <tr>
-                    <th>模型配置</th>
-                    <th>参数规模</th>
-                    <th>最大上下文</th>
-                    <th>路径</th>
+                    <th>{t("home_specs_th_model")}</th>
+                    <th>{t("home_specs_th_params")}</th>
+                    <th>{t("home_specs_th_ctx")}</th>
+                    <th>{t("home_specs_th_path")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -389,7 +401,7 @@ export default function HomePage() {
                     <td>
                       <div
                         className="path-flow"
-                        aria-label="Stage1 到 Stage2 到 Instruct 到 Thinking"
+                        aria-label={t("home_specs_path_dense_aria")}
                       >
                         <span className="path-step">Stage1</span>
                         <span className="path-arrow" aria-hidden="true">
@@ -414,7 +426,7 @@ export default function HomePage() {
                     <td>
                       <div
                         className="path-flow"
-                        aria-label="Stage1 到 Stage2 到 Instruct 到 Thinking"
+                        aria-label={t("home_specs_path_dense_aria")}
                       >
                         <span className="path-step">Stage1</span>
                         <span className="path-arrow" aria-hidden="true">
@@ -439,7 +451,7 @@ export default function HomePage() {
                     <td>
                       <div
                         className="path-flow"
-                        aria-label="Stage1 到 Stage2 到 Instruct 到 Thinking"
+                        aria-label={t("home_specs_path_dense_aria")}
                       >
                         <span className="path-step">Stage1</span>
                         <span className="path-arrow" aria-hidden="true">
@@ -464,7 +476,7 @@ export default function HomePage() {
                     <td>
                       <div
                         className="path-flow"
-                        aria-label="Loop 到 Instruct 到 Thinking"
+                        aria-label={t("home_specs_path_loop_aria")}
                       >
                         <span className="path-step">Loop</span>
                         <span className="path-arrow" aria-hidden="true">
@@ -490,24 +502,23 @@ export default function HomePage() {
         id="loop"
         data-section
         className="page-section section-loop"
-        aria-label="LoopCoder 性能对比"
+        aria-label={t("home_loop_aria")}
       >
         <div className="content-section loop-section">
           <div className="section-header">
-            <h2>LoopCoder 性能提升</h2>
-            <p className="section-intro">
-              LoopCoder 通过 Loop
-              结构设计，在保持相同显存占用的情况下，显著提高模型的性能上限。
-            </p>
+            <h2>{t("home_loop_h2")}</h2>
+            <p className="section-intro">{t("home_loop_intro_1")}</p>
             <ul className="feature-grid">
               <li className="feature-card">
                 <div className="feature-icon" aria-hidden="true">
                   <FiHardDrive size={18} />
                 </div>
                 <div className="feature-body">
-                  <div className="feature-title">显存占用降低</div>
+                  <div className="feature-title">
+                    {t("home_loop_benefit1_title")}
+                  </div>
                   <div className="feature-desc">
-                    Loop 结构通过参数共享机制，显著减少显存需求
+                    {t("home_loop_benefit1_desc")}
                   </div>
                 </div>
               </li>
@@ -516,9 +527,11 @@ export default function HomePage() {
                   <FiServer size={18} />
                 </div>
                 <div className="feature-body">
-                  <div className="feature-title">部署效率提升</div>
+                  <div className="feature-title">
+                    {t("home_loop_benefit2_title")}
+                  </div>
                   <div className="feature-desc">
-                    更低的资源消耗使得模型在相同硬件上运行更流畅
+                    {t("home_loop_benefit2_desc")}
                   </div>
                 </div>
               </li>
@@ -527,9 +540,11 @@ export default function HomePage() {
                   <FiCheckCircle size={18} />
                 </div>
                 <div className="feature-body">
-                  <div className="feature-title">性能保持</div>
+                  <div className="feature-title">
+                    {t("home_loop_benefit3_title")}
+                  </div>
                   <div className="feature-desc">
-                    在降低显存占用的同时，模型能力保持一致
+                    {t("home_loop_benefit3_desc")}
                   </div>
                 </div>
               </li>
@@ -538,33 +553,30 @@ export default function HomePage() {
                   <FiTrendingUp size={18} />
                 </div>
                 <div className="feature-body">
-                  <div className="feature-title">扩展性强</div>
+                  <div className="feature-title">
+                    {t("home_loop_benefit4_title")}
+                  </div>
                   <div className="feature-desc">
-                    Loop 结构设计使得模型更容易扩展到更大规模
+                    {t("home_loop_benefit4_desc")}
                   </div>
                 </div>
               </li>
             </ul>
-            <p className="loop-comparison-intro">
-              以下对比展示了相同任务下，LoopCoder 相比 Dense Model 的性能优势。
-            </p>
+            <p className="loop-comparison-intro">{t("home_loop_intro_2")}</p>
           </div>
 
           <blockquote className="showcase-quote">
-            <h3>虫洞飞行</h3>
-            <p>
-              用页面滚动来控制在虫洞里飞行的方向和速度，下滑加速前进、停止就悬停或慢慢漂、上滑能后退，
-              速度越快画面就带点径向模糊、颜色往暖色偏，营造超高速飞行的感觉。
-            </p>
+            <h3>{t("home_loop_task_title")}</h3>
+            <p>{t("home_loop_task_desc")}</p>
           </blockquote>
 
           <div className="performance-comparison">
             <div className="comparison-item">
-              <h3>Dense 模型</h3>
+              <h3>{t("home_loop_dense_title")}</h3>
               <div className="comparison-demo" data-reveal>
                 <iframe
                   src={loopDemoSrc("dense.html")}
-                  title="Dense 模型 Demo"
+                  title={t("home_loop_dense_iframe_title")}
                   frameBorder="0"
                   loading="lazy"
                   className="comparison-iframe"
@@ -572,11 +584,11 @@ export default function HomePage() {
               </div>
             </div>
             <div className="comparison-item">
-              <h3>Loop 模型</h3>
+              <h3>{t("home_loop_loop_title")}</h3>
               <div className="comparison-demo" data-reveal>
                 <iframe
                   src={loopDemoSrc("loop.html")}
-                  title="LoopCoder Demo"
+                  title={t("home_loop_loop_iframe_title")}
                   frameBorder="0"
                   loading="lazy"
                   className="comparison-iframe"
@@ -592,41 +604,40 @@ export default function HomePage() {
         id="showcases"
         data-section
         className="page-section section-showcases"
-        aria-label="使用示例"
+        aria-label={t("section_showcases")}
       >
         <div className="content-section">
-          <h2>使用示例</h2>
+          <h2>{t("section_showcases")}</h2>
 
           <div className="showcase-card">
             <blockquote className="showcase-quote">
-              <h3>粒子文字汇聚与炸裂特效</h3>
-              <p className="prompt-intro">
-                实现一个粒子文字动画，满足以下要求：
-              </p>
+              <h3>{t("showcase_new_title")}</h3>
+            </blockquote>
+            <div className="showcase-demo" data-reveal>
+              <img
+                src={assetUrl("images/zhousai.jpg")}
+                alt={t("showcase_new_image_alt")}
+                className="showcase-media"
+                loading="lazy"
+              />
+            </div>
+          </div>
+
+          <div className="showcase-card">
+            <blockquote className="showcase-quote">
+              <h3>{t("demo1_title")}</h3>
+              <p className="prompt-intro">{t("demo1_intro")}</p>
               <ol className="prompt-list">
-                <li>
-                  <strong>文字采样</strong>：在 <code>Canvas</code>{" "}
-                  上将指定文字（如 <code>IQuest</code>
-                  ）转化为由数百个微小粒子组成的点阵。
-                </li>
-                <li>
-                  <strong>位置状态</strong>
-                  ：每个粒子拥有当前坐标与目标坐标（组成文字）。
-                </li>
-                <li>
-                  <strong>交互物理</strong>
-                  ：鼠标靠近时施加斥力四散逃离；鼠标移开后施加弹力，平滑回到目标位置。
-                </li>
-                <li>
-                  <strong>视觉与缓动</strong>
-                  ：粒子颜色随机或渐变，整体动作带缓动（Easing）效果。
-                </li>
+                <li>{t("demo1_item1")}</li>
+                <li>{t("demo1_item2")}</li>
+                <li>{t("demo1_item3")}</li>
+                <li>{t("demo1_item4")}</li>
               </ol>
             </blockquote>
             <div className="showcase-demo" data-reveal>
               <iframe
                 src={demoSrc("demo1.html")}
-                title="粒子文字汇聚与炸裂特效 Demo"
+                title={t("demo1_iframe_title")}
                 frameBorder="0"
                 loading="lazy"
                 className="showcase-iframe"
@@ -636,15 +647,13 @@ export default function HomePage() {
 
           <div className="showcase-card">
             <blockquote className="showcase-quote">
-              <h3>像素风 Falling Sand 元素沙盒</h3>
-              <p>
-                给出一个实时刷新的像素沙盘玩具，左边有按钮切换沙子、水、石头、酸液，我在画布上涂抹就能生成，对应不同颜色，还能大规模更新很多像素点也不会明显卡顿，各种元素要有比较真实的下落和流动效果。
-              </p>
+              <h3>{t("demo2_title")}</h3>
+              <p>{t("demo2_desc")}</p>
             </blockquote>
             <div className="showcase-demo" data-reveal>
               <iframe
                 src={demoSrc("demo2.html")}
-                title="像素风 Falling Sand 元素沙盒"
+                title={t("demo2_iframe_title")}
                 frameBorder="0"
                 loading="lazy"
                 className="showcase-iframe"
@@ -654,15 +663,13 @@ export default function HomePage() {
 
           <div className="showcase-card">
             <blockquote className="showcase-quote">
-              <h3>太阳系模拟</h3>
-              <p>
-                Write a web page to show a realistic simulation of solar system
-              </p>
+              <h3>{t("demo3_title")}</h3>
+              <p>{t("demo3_desc")}</p>
             </blockquote>
             <div className="showcase-demo" data-reveal>
               <iframe
                 src={demoSrc("demo3.html")}
-                title="太阳系模拟"
+                title={t("demo3_iframe_title")}
                 frameBorder="0"
                 loading="lazy"
                 className="showcase-iframe"
@@ -672,13 +679,13 @@ export default function HomePage() {
 
           <div className="showcase-card">
             <blockquote className="showcase-quote">
-              <h3>复古淘金游戏</h3>
+              <h3>{t("demo4_title")}</h3>
               {/* <p>描述待定。</p> */}
             </blockquote>
             <div className="showcase-demo" data-reveal>
               <iframe
                 src={demoSrc("demo4.html")}
-                title="复古淘金游戏"
+                title={t("demo4_iframe_title")}
                 frameBorder="0"
                 loading="lazy"
                 className="showcase-iframe"
@@ -688,43 +695,21 @@ export default function HomePage() {
 
           <div className="showcase-card">
             <blockquote className="showcase-quote">
-              <h3>霓虹太空射击游戏</h3>
-              <p className="prompt-intro">
-                一个完整的单文件 HTML5 Canvas
-                太空射击游戏，主打复古霓虹风格与扎实的战斗反馈。
-              </p>
+              <h3>{t("demo5_title")}</h3>
+              <p className="prompt-intro">{t("demo5_intro")}</p>
               <ul className="prompt-list">
-                <li>
-                  <strong>画面风格</strong>：黑色背景 +
-                  高饱和霓虹几何元素，整体观感更“街机”。
-                </li>
-                <li>
-                  <strong>操控方式</strong>：WASD
-                  移动；支持两种瞄准/炮塔控制（鼠标跟随，或按 <code>R</code>{" "}
-                  旋转炮塔）。
-                </li>
-                <li>
-                  <strong>射击机制</strong>
-                  ：飞船自动开火，并配套完整的视觉特效表现。
-                </li>
-                <li>
-                  <strong>战斗反馈</strong>
-                  ：击毁敌人触发粒子爆炸；受击带屏幕震动（Screen Shake）。
-                </li>
-                <li>
-                  <strong>敌人系统</strong>：普通士兵 / 迅捷突袭者 /
-                  重装坦克三类敌人，并包含 Boss 战。
-                </li>
-                <li>
-                  <strong>成长与掉落</strong>：击败敌人掉落 <code>P</code>{" "}
-                  道具，用于提升火力等级。
-                </li>
+                <li>{t("demo5_item1")}</li>
+                <li>{t("demo5_item2")}</li>
+                <li>{t("demo5_item3")}</li>
+                <li>{t("demo5_item4")}</li>
+                <li>{t("demo5_item5")}</li>
+                <li>{t("demo5_item6")}</li>
               </ul>
             </blockquote>
             <div className="showcase-demo" data-reveal>
               <iframe
                 src={demoSrc("demo5.html")}
-                title="Neon Space Shooter"
+                title={t("demo5_iframe_title")}
                 frameBorder="0"
                 loading="lazy"
                 className="showcase-iframe"
@@ -734,38 +719,20 @@ export default function HomePage() {
 
           <div className="showcase-card">
             <blockquote className="showcase-quote">
-              <h3>Boids算法 - 仿生鸟群/鱼群模拟</h3>
-              <p className="prompt-intro">
-                基于 Boids 算法的仿生群集（鸟群/鱼群）模拟：150+
-                自主智能体实时演化，支持参数面板调参与交互扰动。
-              </p>
+              <h3>{t("demo6_title")}</h3>
+              <p className="prompt-intro">{t("demo6_intro")}</p>
               <ul className="prompt-list">
-                <li>
-                  <strong>核心规则</strong>
-                  ：分离（避免碰撞）、对齐（速度匹配）、凝聚（群体向心）。
-                </li>
-                <li>
-                  <strong>实时调参面板</strong>
-                  ：可调分离/对齐/凝聚权重（0–3），视野半径（20–150px）与最大速度。
-                </li>
-                <li>
-                  <strong>交互行为</strong>
-                  ：鼠标作为“捕食者”靠近时，邻近个体会迅速四散躲避。
-                </li>
-                <li>
-                  <strong>渲染效果</strong>
-                  ：霓虹色三角形智能体，随运动方向旋转；暗色背景叠加发光拖尾轨迹。
-                </li>
-                <li>
-                  <strong>辅助功能</strong>：内置 FPS 计数器；按{" "}
-                  <code>Space</code> 暂停/继续。
-                </li>
+                <li>{t("demo6_item1")}</li>
+                <li>{t("demo6_item2")}</li>
+                <li>{t("demo6_item3")}</li>
+                <li>{t("demo6_item4")}</li>
+                <li>{t("demo6_item5")}</li>
               </ul>
             </blockquote>
             <div className="showcase-demo" data-reveal>
               <iframe
                 src={demoSrc("demo6.html")}
-                title="Boids Algorithm - Flocking Simulation"
+                title={t("demo6_iframe_title")}
                 frameBorder="0"
                 loading="lazy"
                 className="showcase-iframe"

@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 export default function NotFoundPage() {
+  const { t } = useLanguage();
   return (
     <section className="content-section" style={{ marginTop: 120 }}>
-      <h2>页面不存在</h2>
+      <h2>{t("not_found_title")}</h2>
       <p>
-        你访问的页面不存在。返回 <Link to="/">首页</Link>。
+        {t("not_found_body")} <Link to="/">{t("back_home")}</Link>
       </p>
     </section>
   );
