@@ -230,10 +230,15 @@ export default function HomePage() {
             </span>
           </p>
           <div className="hero-actions">
-            <Link className="btn btn-primary" to="/download">
+            <a
+              className="btn btn-primary"
+              href="https://huggingface.co/collections/IQuestLab/iquest-coder"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {t("cta_download")}
               <FiDownload className="btn-icon" size={16} aria-hidden="true" />
-            </Link>
+            </a>
             <Link className="btn btn-secondary" to="/report">
               {t("cta_report")}
               <FiFileText className="btn-icon" size={16} aria-hidden="true" />
