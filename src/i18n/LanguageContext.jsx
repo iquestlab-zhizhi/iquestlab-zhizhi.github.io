@@ -91,9 +91,9 @@ const DICT = {
     home_loop_benefit2_title: "部署效率提升",
     home_loop_benefit2_desc: "更低的资源消耗使得模型在相同硬件上运行更流畅",
     home_loop_benefit3_title: "性能保持",
-    home_loop_benefit3_desc: "在降低显存占用的同时，模型能力保持一致",
+    home_loop_benefit3_desc: "在降低显存占用的同时，模型能力近似一致",
     home_loop_benefit4_title: "扩展性强",
-    home_loop_benefit4_desc: "Loop 结构设计使得模型更容易扩展到更大规模",
+    home_loop_benefit4_desc: "引入Loop架构大幅提升模型参数可扩展性",
     home_loop_task_title: "虫洞飞行",
     home_loop_task_desc:
       "用页面滚动来控制在虫洞里飞行的方向和速度，下滑加速前进、停止就悬停或慢慢漂、上滑能后退，速度越快画面就带点径向模糊、颜色往暖色偏，营造超高速飞行的感觉。",
@@ -242,10 +242,10 @@ const DICT = {
       "Lower resource consumption makes inference smoother on the same hardware.",
     home_loop_benefit3_title: "Performance Maintained",
     home_loop_benefit3_desc:
-      "Capability remains consistent while reducing memory footprint.",
+      "Capability remains approximately consistent while reducing memory footprint.",
     home_loop_benefit4_title: "Highly Scalable",
     home_loop_benefit4_desc:
-      "The Loop design scales more naturally to larger model sizes.",
+      "Introducing the Loop architecture greatly improves the scalability of model parameters.",
     home_loop_task_title: "Wormhole Flight",
     home_loop_task_desc:
       "Use page scroll to control direction and speed in a wormhole: scroll down to accelerate forward, stop to hover/drift, scroll up to reverse. Faster speed adds radial blur and shifts colors warmer to convey hyperspeed.",
