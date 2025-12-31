@@ -259,6 +259,29 @@ body {
   color: var(--text-dark);
 }
 
+.nav-lang-toggle {
+  padding: 8px 14px;
+  border-radius: 32px;
+  border: 1px solid rgba(24, 30, 37, 0.12);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--text-dark);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    transform 0.12s ease;
+}
+
+.nav-lang-toggle:hover {
+  background: var(--bg-light);
+  border-color: rgba(24, 30, 37, 0.18);
+}
+
+.nav-lang-toggle:active {
+  transform: translateY(1px);
+}
+
 /* 主视觉区 */
 .hero {
   padding: 0;
@@ -284,6 +307,22 @@ body {
   max-width: 800px;
   color: var(--text-dark);
   opacity: 0.8;
+}
+
+/* 英文文案更长：在常规屏幕下尽量保持副标题单行展示，避免“中途换行”破坏版式 */
+html[lang="en"] .hero .subtitle {
+  white-space: nowrap;
+  font-size: 16px;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* 小屏兜底：避免强制不换行导致溢出 */
+@media (max-width: 520px) {
+  html[lang="en"] .hero .subtitle {
+    white-space: normal;
+  }
 }
 
 /* Hero 副标题：把模型规格做成 chips，信息更清晰 */
@@ -388,6 +427,12 @@ body {
   background: var(--white);
 }
 
+.hero-image--no-border {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
 .hero-image img {
   width: 100%;
   height: auto;
@@ -470,6 +515,16 @@ body {
 
 .showcase-card .showcase-demo {
   margin-top: 16px;
+}
+
+.showcase-media {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  background: #fff;
 }
 
 .prompt-intro {
