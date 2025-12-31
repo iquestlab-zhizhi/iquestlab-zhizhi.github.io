@@ -617,7 +617,7 @@ export default function HomePage() {
             </blockquote>
             <div className="showcase-demo" data-reveal>
               <img
-                src={assetUrl("images/zhousai.jpg")}
+                src={assetUrl("images/icpc.jpg")}
                 alt={t("showcase_new_image_alt")}
                 className="showcase-media"
                 loading="lazy"
@@ -678,21 +678,6 @@ export default function HomePage() {
               />
             </div>
           </div>
-
-          {/* <div className="showcase-card">
-            <blockquote className="showcase-quote">
-              <h3>{t("demo4_title")}</h3>
-            </blockquote>
-            <div className="showcase-demo" data-reveal>
-              <iframe
-                src={demoSrc("demo4.html")}
-                title={t("demo4_iframe_title")}
-                frameBorder="0"
-                loading="lazy"
-                className="showcase-iframe"
-              />
-            </div>
-          </div> */}
 
           <div className="showcase-card">
             <blockquote className="showcase-quote">
