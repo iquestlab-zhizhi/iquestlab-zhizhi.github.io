@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>仿生鸟群/鱼群模拟 (Boids + 掠食者)</title>
     <style>
         body {
@@ -13,17 +13,19 @@
         }
         canvas {
             display: block;
+            touch-action: none; /* 移动端：画布交互优先，避免滚动手势 */
         }
         #controls {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: calc(12px + env(safe-area-inset-top));
+            left: 12px;
             color: rgba(255, 255, 255, 0.8);
             background: rgba(0, 0, 0, 0.5);
             padding: 15px;
             border-radius: 8px;
             pointer-events: none; /* 让鼠标事件穿透到 Canvas */
             user-select: none;
+            max-width: min(92vw, 360px);
         }
         h1 {
             margin: 0 0 10px 0;
@@ -38,6 +40,43 @@
         .highlight {
             color: #ff00de;
             font-weight: bold;
+        }
+
+        /* 小屏/矮屏：缩小信息面板，避免遮挡太多画面 */
+        @media (max-width: 520px) {
+            #controls {
+                padding: 10px 12px;
+                border-radius: 10px;
+            }
+
+            h1 {
+                font-size: 1rem;
+                margin-bottom: 8px;
+            }
+
+            p {
+                font-size: 0.82rem;
+            }
+
+            #controls ul {
+                padding-left: 18px !important;
+            }
+        }
+
+        /* 矮高度（常见于手机端 iframe）：进一步压缩，让画面更完整 */
+        @media (max-height: 420px) {
+            #controls {
+                padding: 8px 10px;
+                max-width: min(92vw, 320px);
+            }
+
+            p {
+                margin: 4px 0;
+            }
+
+            #controls ul {
+                margin: 4px 0 !important;
+            }
         }
     </style>
 </head>
@@ -298,6 +337,25 @@ window.addEventListener('mousemove', (e) => {
     mousePos.x = e.clientX;
     mousePos.y = e.clientY;
 });
+// 移动端：触摸/拖动也作为“掠食者”位置
+window.addEventListener('touchstart', (e) => {
+    if (!e.touches || !e.touches.length) return;
+    mousePos.x = e.touches[0].clientX;
+    mousePos.y = e.touches[0].clientY;
+}, { passive: true });
+
+window.addEventListener('touchmove', (e) => {
+    if (!e.touches || !e.touches.length) return;
+    e.preventDefault();
+    mousePos.x = e.touches[0].clientX;
+    mousePos.y = e.touches[0].clientY;
+}, { passive: false });
+
+window.addEventListener('touchend', () => {
+    mousePos.x = -1000;
+    mousePos.y = -1000;
+}, { passive: true });
+
 // 鼠标移出窗口时移除威胁
 window.addEventListener('mouseout', () => {
     mousePos.x = -1000;

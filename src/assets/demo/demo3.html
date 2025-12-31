@@ -197,6 +197,100 @@
         .hint p {
             margin: 5px 0;
         }
+
+        /* =========================
+           Mobile / iframe 适配
+           - 小屏/矮屏下减少遮挡
+           - 兼容 safe-area
+           ========================= */
+        @media (max-width: 768px) {
+            .title {
+                top: 12px;
+                left: 12px;
+            }
+
+            .title h1 {
+                font-size: 18px;
+                letter-spacing: 2px;
+            }
+
+            .title p {
+                font-size: 11px;
+            }
+
+            /* 小屏：按钮贴顶显示（避免跑到画面中间遮挡） */
+            .view-buttons {
+                top: calc(10px + env(safe-area-inset-top));
+                left: 12px;
+                right: 12px;
+                transform: none;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+                max-width: 92vw;
+            }
+
+            .view-buttons button {
+                padding: 8px 10px;
+                font-size: 12px;
+                border-radius: 10px;
+            }
+
+            .controls {
+                bottom: calc(10px + env(safe-area-inset-bottom));
+                padding: 10px 14px;
+                gap: 10px;
+                border-radius: 18px;
+            }
+
+            .controls button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .speed-control input[type="range"] {
+                width: 84px;
+            }
+
+            .info-panel {
+                left: 12px;
+                right: 12px;
+                max-width: none;
+                padding: 12px 14px;
+                bottom: calc(84px + env(safe-area-inset-bottom));
+            }
+
+            .info-panel h2 {
+                font-size: 18px;
+            }
+
+            .info-panel p {
+                font-size: 12px;
+                margin-bottom: 8px;
+            }
+
+            /* 提示文案在手机端可省略，避免遮挡 */
+            .hint {
+                display: none;
+            }
+        }
+
+        /* 矮高度（常见于手机端 iframe）：进一步压缩控件，给画面留空间 */
+        @media (max-height: 420px) {
+            .controls {
+                padding: 8px 12px;
+                gap: 8px;
+            }
+
+            .speed-control input[type="range"] {
+                width: 70px;
+            }
+
+            .info-panel {
+                bottom: calc(72px + env(safe-area-inset-bottom));
+            }
+        }
     </style>
 </head>
 <body>

@@ -672,7 +672,7 @@ export default function HomePage() {
                 title={t("demo3_iframe_title")}
                 frameBorder="0"
                 loading="lazy"
-                className="showcase-iframe"
+                className="showcase-iframe showcase-iframe--tall"
               />
             </div>
           </div>
