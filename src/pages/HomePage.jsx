@@ -3,8 +3,13 @@ import { Link } from "react-router-dom";
 import {
   FiGitBranch,
   FiCpu,
-  FiMessageSquare,
-  FiLayers,
+  FiHardDrive,
+  FiCheckCircle,
+  FiRefreshCw,
+  FiServer,
+  FiShuffle,
+  FiTrendingUp,
+  FiTrendingDown,
   FiDownload,
   FiFileText,
 } from "react-icons/fi";
@@ -12,6 +17,7 @@ import { assetUrl } from "../utils/assetUrl.js";
 
 export default function HomePage() {
   const demoSrc = (fileName) => assetUrl(`demo/${fileName}`);
+  const loopDemoSrc = (fileName) => assetUrl(`demo_loop/${fileName}`);
 
   const sections = useMemo(
     () => [
@@ -19,6 +25,7 @@ export default function HomePage() {
       { id: "pipeline", label: "训练流程" },
       { id: "benchmark", label: "基准表现" },
       { id: "specs", label: "规格" },
+      { id: "loop", label: "Loop 对比" },
       { id: "showcases", label: "使用示例" },
     ],
     []
@@ -200,7 +207,7 @@ export default function HomePage() {
       >
         <div className="content-section">
           <div className="hero-image" data-reveal>
-            <img src={assetUrl("images/image1.png")} alt="首页主视觉图" />
+            <img src={assetUrl("images/image-main.png")} alt="首页主视觉图" />
           </div>
           <p className="subtitle">
             <span className="subtitle-lead">
@@ -247,9 +254,9 @@ export default function HomePage() {
                 <FiGitBranch size={18} />
               </div>
               <div className="feature-body">
-                <div className="feature-title">Code-flow 多阶段训练</div>
+                <div className="feature-title">Code-Flow 训练</div>
                 <div className="feature-desc">
-                  基于 code-flow 的多阶段训练策略，跟踪代码逻辑演化过程
+                  基于 Code-Flow 的多阶段训练策略，跟踪代码逻辑演化过程
                 </div>
               </div>
             </li>
@@ -258,7 +265,7 @@ export default function HomePage() {
                 <FiCpu size={18} />
               </div>
               <div className="feature-body">
-                <div className="feature-title">长上下文过程推理</div>
+                <div className="feature-title">增强推理能力</div>
                 <div className="feature-desc">
                   加入 32k 推理与智能体轨迹，增强过程推理与长上下文稳定性
                 </div>
@@ -266,10 +273,10 @@ export default function HomePage() {
             </li>
             <li className="feature-card">
               <div className="feature-icon" aria-hidden="true">
-                <FiMessageSquare size={18} />
+                <FiShuffle size={18} />
               </div>
               <div className="feature-body">
-                <div className="feature-title">Thinking / Instruct 双路径</div>
+                <div className="feature-title">双路径训练</div>
                 <div className="feature-desc">
                   两条后训练路径：Thinking（强化推理）与 Instruct（通用协助）
                 </div>
@@ -277,12 +284,34 @@ export default function HomePage() {
             </li>
             <li className="feature-card">
               <div className="feature-icon" aria-hidden="true">
-                <FiLayers size={18} />
+                <FiRefreshCw size={18} />
               </div>
               <div className="feature-body">
-                <div className="feature-title">Loop 结构高效部署</div>
+                <div className="feature-title">Loop 架构</div>
                 <div className="feature-desc">
-                  Loop 结构用于降低显存占用，提升部署效率
+                  Loop结构用以降低显存和kv_cache占用，同性能下提升模型吞吐
+                </div>
+              </div>
+            </li>
+            <li className="feature-card">
+              <div className="feature-icon" aria-hidden="true">
+                <FiServer size={18} />
+              </div>
+              <div className="feature-body">
+                <div className="feature-title">高效部署</div>
+                <div className="feature-desc">
+                  单卡3090/4090即可部署（int4版本）；非量化版单卡H20全部可部署
+                </div>
+              </div>
+            </li>
+            <li className="feature-card">
+              <div className="feature-icon" aria-hidden="true">
+                <FiTrendingDown size={18} />
+              </div>
+              <div className="feature-body">
+                <div className="feature-title">成本优化</div>
+                <div className="feature-desc">
+                  训练成本1.05x or 1.1x，达到帕累托前沿
                 </div>
               </div>
             </li>
@@ -324,7 +353,7 @@ export default function HomePage() {
           <h2>基准表现</h2>
           <p>
             在多个关键编码任务基准中取得领先表现，包括 SWE-Bench
-            Verified、LiveCodeBench v6、BFCL 等。
+            Verified、LiveCodeBench v6、Terminal Bench 等。
           </p>
           <div className="media-wrap" data-reveal>
             <img src={assetUrl("images/benchmark.jpg")} alt="基准柱状图" />
@@ -456,6 +485,108 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* LoopCoder 性能对比 */}
+      <section
+        id="loop"
+        data-section
+        className="page-section section-loop"
+        aria-label="LoopCoder 性能对比"
+      >
+        <div className="content-section loop-section">
+          <div className="section-header">
+            <h2>LoopCoder 性能提升</h2>
+            <p className="section-intro">
+              LoopCoder 通过 Loop
+              结构设计，在保持相同显存占用的情况下，显著提高模型的性能上限。
+            </p>
+            <ul className="feature-grid">
+              <li className="feature-card">
+                <div className="feature-icon" aria-hidden="true">
+                  <FiHardDrive size={18} />
+                </div>
+                <div className="feature-body">
+                  <div className="feature-title">显存占用降低</div>
+                  <div className="feature-desc">
+                    Loop 结构通过参数共享机制，显著减少显存需求
+                  </div>
+                </div>
+              </li>
+              <li className="feature-card">
+                <div className="feature-icon" aria-hidden="true">
+                  <FiServer size={18} />
+                </div>
+                <div className="feature-body">
+                  <div className="feature-title">部署效率提升</div>
+                  <div className="feature-desc">
+                    更低的资源消耗使得模型在相同硬件上运行更流畅
+                  </div>
+                </div>
+              </li>
+              <li className="feature-card">
+                <div className="feature-icon" aria-hidden="true">
+                  <FiCheckCircle size={18} />
+                </div>
+                <div className="feature-body">
+                  <div className="feature-title">性能保持</div>
+                  <div className="feature-desc">
+                    在降低显存占用的同时，模型能力保持一致
+                  </div>
+                </div>
+              </li>
+              <li className="feature-card">
+                <div className="feature-icon" aria-hidden="true">
+                  <FiTrendingUp size={18} />
+                </div>
+                <div className="feature-body">
+                  <div className="feature-title">扩展性强</div>
+                  <div className="feature-desc">
+                    Loop 结构设计使得模型更容易扩展到更大规模
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <p className="loop-comparison-intro">
+              以下对比展示了相同任务下，LoopCoder 相比 Dense Model 的性能优势。
+            </p>
+          </div>
+
+          <blockquote className="showcase-quote">
+            <h3>虫洞飞行</h3>
+            <p>
+              用页面滚动来控制在虫洞里飞行的方向和速度，下滑加速前进、停止就悬停或慢慢漂、上滑能后退，
+              速度越快画面就带点径向模糊、颜色往暖色偏，营造超高速飞行的感觉。
+            </p>
+          </blockquote>
+
+          <div className="performance-comparison">
+            <div className="comparison-item">
+              <h3>Dense 模型</h3>
+              <div className="comparison-demo" data-reveal>
+                <iframe
+                  src={loopDemoSrc("dense.html")}
+                  title="Dense 模型 Demo"
+                  frameBorder="0"
+                  loading="lazy"
+                  className="comparison-iframe"
+                />
+              </div>
+            </div>
+            <div className="comparison-item">
+              <h3>Loop 模型</h3>
+              <div className="comparison-demo" data-reveal>
+                <iframe
+                  src={loopDemoSrc("loop.html")}
+                  title="LoopCoder Demo"
+                  frameBorder="0"
+                  loading="lazy"
+                  className="comparison-iframe"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* showcase */}
       <section
         id="showcases"
@@ -466,69 +597,180 @@ export default function HomePage() {
         <div className="content-section">
           <h2>使用示例</h2>
 
-          <blockquote className="showcase-quote">
-            <h3>粒子文字汇聚与炸裂特效</h3>
-            <p className="prompt-intro">实现一个粒子文字动画，满足以下要求：</p>
-            <ol className="prompt-list">
-              <li>
-                <strong>文字采样</strong>：在 <code>Canvas</code>{" "}
-                上将指定文字（如 <code>IQuest</code>
-                ）转化为由数百个微小粒子组成的点阵。
-              </li>
-              <li>
-                <strong>位置状态</strong>
-                ：每个粒子拥有当前坐标与目标坐标（组成文字）。
-              </li>
-              <li>
-                <strong>交互物理</strong>
-                ：鼠标靠近时施加斥力四散逃离；鼠标移开后施加弹力，平滑回到目标位置。
-              </li>
-              <li>
-                <strong>视觉与缓动</strong>
-                ：粒子颜色随机或渐变，整体动作带缓动（Easing）效果。
-              </li>
-            </ol>
-          </blockquote>
-          <div className="showcase-demo" data-reveal>
-            <iframe
-              src={demoSrc("demo1.html")}
-              title="粒子文字汇聚与炸裂特效 Demo"
-              frameBorder="0"
-              loading="lazy"
-              className="showcase-iframe"
-            />
+          <div className="showcase-card">
+            <blockquote className="showcase-quote">
+              <h3>粒子文字汇聚与炸裂特效</h3>
+              <p className="prompt-intro">
+                实现一个粒子文字动画，满足以下要求：
+              </p>
+              <ol className="prompt-list">
+                <li>
+                  <strong>文字采样</strong>：在 <code>Canvas</code>{" "}
+                  上将指定文字（如 <code>IQuest</code>
+                  ）转化为由数百个微小粒子组成的点阵。
+                </li>
+                <li>
+                  <strong>位置状态</strong>
+                  ：每个粒子拥有当前坐标与目标坐标（组成文字）。
+                </li>
+                <li>
+                  <strong>交互物理</strong>
+                  ：鼠标靠近时施加斥力四散逃离；鼠标移开后施加弹力，平滑回到目标位置。
+                </li>
+                <li>
+                  <strong>视觉与缓动</strong>
+                  ：粒子颜色随机或渐变，整体动作带缓动（Easing）效果。
+                </li>
+              </ol>
+            </blockquote>
+            <div className="showcase-demo" data-reveal>
+              <iframe
+                src={demoSrc("demo1.html")}
+                title="粒子文字汇聚与炸裂特效 Demo"
+                frameBorder="0"
+                loading="lazy"
+                className="showcase-iframe"
+              />
+            </div>
           </div>
 
-          <blockquote className="showcase-quote showcase-quote--mt16">
-            <h3>像素风 Falling Sand 元素沙盒</h3>
-            <p>
-              给出一个实时刷新的像素沙盘玩具，左边有按钮切换沙子、水、石头、酸液，我在画布上涂抹就能生成，对应不同颜色，还能大规模更新很多像素点也不会明显卡顿，各种元素要有比较真实的下落和流动效果。
-            </p>
-          </blockquote>
-          <div className="showcase-demo" data-reveal>
-            <iframe
-              src={demoSrc("demo2.html")}
-              title="像素风 Falling Sand 元素沙盒"
-              frameBorder="0"
-              loading="lazy"
-              className="showcase-iframe"
-            />
+          <div className="showcase-card">
+            <blockquote className="showcase-quote">
+              <h3>像素风 Falling Sand 元素沙盒</h3>
+              <p>
+                给出一个实时刷新的像素沙盘玩具，左边有按钮切换沙子、水、石头、酸液，我在画布上涂抹就能生成，对应不同颜色，还能大规模更新很多像素点也不会明显卡顿，各种元素要有比较真实的下落和流动效果。
+              </p>
+            </blockquote>
+            <div className="showcase-demo" data-reveal>
+              <iframe
+                src={demoSrc("demo2.html")}
+                title="像素风 Falling Sand 元素沙盒"
+                frameBorder="0"
+                loading="lazy"
+                className="showcase-iframe"
+              />
+            </div>
           </div>
 
-          <blockquote className="showcase-quote showcase-quote--mt16">
-            <h3>太阳系模拟</h3>
-            <p>
-              Write a web page to show a realistic simulation of solar system
-            </p>
-          </blockquote>
-          <div className="showcase-demo" data-reveal>
-            <iframe
-              src={demoSrc("demo3.html")}
-              title="太阳系模拟"
-              frameBorder="0"
-              loading="lazy"
-              className="showcase-iframe"
-            />
+          <div className="showcase-card">
+            <blockquote className="showcase-quote">
+              <h3>太阳系模拟</h3>
+              <p>
+                Write a web page to show a realistic simulation of solar system
+              </p>
+            </blockquote>
+            <div className="showcase-demo" data-reveal>
+              <iframe
+                src={demoSrc("demo3.html")}
+                title="太阳系模拟"
+                frameBorder="0"
+                loading="lazy"
+                className="showcase-iframe"
+              />
+            </div>
+          </div>
+
+          <div className="showcase-card">
+            <blockquote className="showcase-quote">
+              <h3>复古淘金游戏</h3>
+              {/* <p>描述待定。</p> */}
+            </blockquote>
+            <div className="showcase-demo" data-reveal>
+              <iframe
+                src={demoSrc("demo4.html")}
+                title="复古淘金游戏"
+                frameBorder="0"
+                loading="lazy"
+                className="showcase-iframe"
+              />
+            </div>
+          </div>
+
+          <div className="showcase-card">
+            <blockquote className="showcase-quote">
+              <h3>霓虹太空射击游戏</h3>
+              <p className="prompt-intro">
+                一个完整的单文件 HTML5 Canvas
+                太空射击游戏，主打复古霓虹风格与扎实的战斗反馈。
+              </p>
+              <ul className="prompt-list">
+                <li>
+                  <strong>画面风格</strong>：黑色背景 +
+                  高饱和霓虹几何元素，整体观感更“街机”。
+                </li>
+                <li>
+                  <strong>操控方式</strong>：WASD
+                  移动；支持两种瞄准/炮塔控制（鼠标跟随，或按 <code>R</code>{" "}
+                  旋转炮塔）。
+                </li>
+                <li>
+                  <strong>射击机制</strong>
+                  ：飞船自动开火，并配套完整的视觉特效表现。
+                </li>
+                <li>
+                  <strong>战斗反馈</strong>
+                  ：击毁敌人触发粒子爆炸；受击带屏幕震动（Screen Shake）。
+                </li>
+                <li>
+                  <strong>敌人系统</strong>：普通士兵 / 迅捷突袭者 /
+                  重装坦克三类敌人，并包含 Boss 战。
+                </li>
+                <li>
+                  <strong>成长与掉落</strong>：击败敌人掉落 <code>P</code>{" "}
+                  道具，用于提升火力等级。
+                </li>
+              </ul>
+            </blockquote>
+            <div className="showcase-demo" data-reveal>
+              <iframe
+                src={demoSrc("demo5.html")}
+                title="Neon Space Shooter"
+                frameBorder="0"
+                loading="lazy"
+                className="showcase-iframe"
+              />
+            </div>
+          </div>
+
+          <div className="showcase-card">
+            <blockquote className="showcase-quote">
+              <h3>Boids算法 - 仿生鸟群/鱼群模拟</h3>
+              <p className="prompt-intro">
+                基于 Boids 算法的仿生群集（鸟群/鱼群）模拟：150+
+                自主智能体实时演化，支持参数面板调参与交互扰动。
+              </p>
+              <ul className="prompt-list">
+                <li>
+                  <strong>核心规则</strong>
+                  ：分离（避免碰撞）、对齐（速度匹配）、凝聚（群体向心）。
+                </li>
+                <li>
+                  <strong>实时调参面板</strong>
+                  ：可调分离/对齐/凝聚权重（0–3），视野半径（20–150px）与最大速度。
+                </li>
+                <li>
+                  <strong>交互行为</strong>
+                  ：鼠标作为“捕食者”靠近时，邻近个体会迅速四散躲避。
+                </li>
+                <li>
+                  <strong>渲染效果</strong>
+                  ：霓虹色三角形智能体，随运动方向旋转；暗色背景叠加发光拖尾轨迹。
+                </li>
+                <li>
+                  <strong>辅助功能</strong>：内置 FPS 计数器；按{" "}
+                  <code>Space</code> 暂停/继续。
+                </li>
+              </ul>
+            </blockquote>
+            <div className="showcase-demo" data-reveal>
+              <iframe
+                src={demoSrc("demo6.html")}
+                title="Boids Algorithm - Flocking Simulation"
+                frameBorder="0"
+                loading="lazy"
+                className="showcase-iframe"
+              />
+            </div>
           </div>
         </div>
       </section>
