@@ -39,7 +39,7 @@ const DICT = {
 
     home_section_nav_aria: "页面分区导航",
     home_hero_image_alt: "首页主视觉图",
-    home_hero_lead: "新一代面向软件工程、竞赛编程的代码大模型系列",
+    home_hero_lead: "新一代面向软件工程、竞赛编程的代码大模型系列：",
     home_hero_models_aria: "模型规格：7B、14B、40B、40B-Loop",
 
     home_features_aria: "核心特点",
@@ -187,7 +187,7 @@ const DICT = {
     home_section_nav_aria: "Page sections",
     home_hero_image_alt: "Hero image",
     home_hero_lead:
-      "A new generation of code LLMs for software engineering and competitive programming.",
+      "A new generation of code LLMs for software engineering and competitive programming:",
     home_hero_models_aria: "Model sizes: 7B, 14B, 40B, 40B-Loop",
 
     home_features_aria: "Features",

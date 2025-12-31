@@ -216,9 +216,6 @@ export default function HomePage() {
           </div>
           <p className="subtitle">
             <span className="subtitle-lead">{t("home_hero_lead")}</span>
-            <span className="subtitle-sep" aria-hidden="true">
-              ：
-            </span>
             <span
               className="subtitle-models"
               aria-label={t("home_hero_models_aria")}
