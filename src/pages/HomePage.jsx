@@ -236,10 +236,15 @@ export default function HomePage() {
               {t("cta_download")}
               <FiDownload className="btn-icon" size={16} aria-hidden="true" />
             </a>
-            <Link className="btn btn-secondary" to="/report">
+            <a
+              className="btn btn-secondary"
+              href={assetUrl("report/IQuest_Coder_Technical_Report.pdf")}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {t("cta_report")}
               <FiFileText className="btn-icon" size={16} aria-hidden="true" />
-            </Link>
+            </a>
           </div>
         </div>
       </section>
